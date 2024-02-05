@@ -3,8 +3,6 @@ from fredapi import Fred
 fred = Fred(api_key='a02d5cbed56418e2d72837659e22b8ca')
 ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
 
-#Git Test
-
 def enterprise_value(market_cap, debt, cash):
     return market_cap + debt - cash
 
