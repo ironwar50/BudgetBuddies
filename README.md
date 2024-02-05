@@ -1,8 +1,13 @@
 # BuggetBuddies
+
 Team Name: Budget Buddies
+
 Team Members:
+
 Aaron Loturco - ajl21bb
+
 Kris Treska - kt22u
+
 Polina Miller - ps22y
 Alexis Garcia - afg20s
 Jesse Hatfield - jdh20dz
