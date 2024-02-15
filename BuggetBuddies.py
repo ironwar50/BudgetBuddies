@@ -159,42 +159,8 @@ def sharePriceImpl(eVal, shares):
         print("An exception has occurred.")
         return None
 
-def main():
-    print("Enter the ticker you would like to evaluate: ")
-    ticker = 'LSCC'
-    ticker = yf.Ticker(ticker.upper())
-    toComp = [yf.Ticker('MTSI'),yf.Ticker('POWI'),yf.Ticker('QRVO'),yf.Ticker('RMBS'),yf.Ticker('SLAB')]
-    print("Enter five similiar companies to compare to:")
-    '''for i in range(5):
-        temp = input()
-        toComp.append(yf.Ticker(temp.upper()))'''
-    AVG_rev_multi = 0 #Start of Trading Comps
-    AVG_EBITDA_multi = 0
-    AVG_PE_ratio = 0
-    for tick in toComp: #Calculate Average Ratios for five companies
-        tickIncome = tick.quarterly_income_stmt.transpose()
-        tickBalance = tick.quarterly_balance_sheet.transpose()
-        marketCap = tick.info['regularMarketPreviousClose']* tickIncome['Diluted Average Shares'].iloc[0]
-        revenue = 0
-        ebitda = 0
-        netIncome = 0
-        for i in range(4):
-            revenue += tickIncome['Total Revenue'].iloc[i]
-            ebitda += tickIncome['Total Revenue'].iloc[i]
-            netIncome += tickIncome['Net Income'].iloc[i]
-        if 'Total Debt' in tickBalance.keys():
-            debt = tickBalance['Total Debt'].iloc[0]
-        else:
-            debt = 0
-        EV = enterprise_value(marketCap,debt,tickBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0])
-        AVG_rev_multi += revenue_multiple(EV, revenue)
-        AVG_EBITDA_multi += ebitda_multiple(EV, ebitda)
-        AVG_PE_ratio += pe_ratio(marketCap, netIncome)
-    AVG_rev_multi /= 5
-    AVG_EBITDA_multi /= 5
-    AVG_PE_ratio /= 5
-
-    tickerIncome = ticker.quarterly_income_stmt.transpose() #Start of DCF
+def pullTickerData(ticker):
+    tickerIncome = ticker.quarterly_income_stmt.transpose() 
     tickerBalance = ticker.quarterly_balance_sheet.transpose()
     tickerCashFlow = ticker.quarterly_cash_flow.transpose()
     marketCap = ticker.info['regularMarketPreviousClose'] * tickerIncome['Diluted Average Shares'].iloc[0]
@@ -210,14 +176,42 @@ def main():
         revenue += tickerIncome['Total Revenue'].iloc[i]
         ebitda += tickerIncome['Total Revenue'].iloc[i]
         netIncome += tickerIncome['Net Income'].iloc[i]
+    return {"tickerCashFlow" : tickerCashFlow, "marketCap" : marketCap, "revenue" : revenue, "ebitda" : ebitda, 
+            "netIncome" : netIncome, "eps" : eps, "cash" : cash, "debt" : debt, "shares" : shares}
+   
+def TradeComps(toComp, cash, debt, shares, eps):
+    AVG_rev_multi = 0 
+    AVG_EBITDA_multi = 0
+    AVG_PE_ratio = 0
+    for tick in toComp: 
+        tickIncome = tick.quarterly_income_stmt.transpose()
+        tickBalance = tick.quarterly_balance_sheet.transpose()
+        marketCap = tick.info['regularMarketPreviousClose']* tickIncome['Diluted Average Shares'].iloc[0]
+        revenue = 0
+        ebitda = 0
+        netIncome = 0
+        for i in range(4):
+            revenue += tickIncome['Total Revenue'].iloc[i]
+            ebitda += tickIncome['EBITDA'].iloc[i]
+            netIncome += tickIncome['Net Income'].iloc[i]
+        if 'Total Debt' in tickBalance.keys():
+            debt = tickBalance['Total Debt'].iloc[0]
+        else:
+            debt = 0
+        EV = enterprise_value(marketCap,debt,tickBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0])
+        AVG_rev_multi += revenue_multiple(EV, revenue)
+        AVG_EBITDA_multi += ebitda_multiple(EV, ebitda)
+        AVG_PE_ratio += pe_ratio(marketCap, netIncome)
+    AVG_rev_multi /= 5
+    AVG_EBITDA_multi /= 5
+    AVG_PE_ratio /= 5
     revenue_SharePrice = impliedSharePriceRevenue(impliedValueRevenue(implied_ev_from_revenue(AVG_rev_multi,revenue),cash,debt),shares)
     ebitda_SharePrice = impliedSharePriceEBITDA(impliedValueEBITDA(implied_ev_from_ebitda(AVG_EBITDA_multi,ebitda),cash,debt),shares)
     NetIncome_SharePrice = impliedSharePriceNetIncome(impliedValueNetIncome(eps, shares, AVG_PE_ratio),shares)
-    print("--Trading Comps--")
-    print("Implied Share Price from Revenue: ", revenue_SharePrice)
-    print("Implied Share Price from EBITDA: ", ebitda_SharePrice)
-    print("Implied Share Price from P/E: ", NetIncome_SharePrice)
-    print()
+    ImpliedSharePrices = {"revenue_SharePrice" : revenue_SharePrice, "ebitda_SharePrice" : ebitda_SharePrice, "netIncome_SharePrice" : NetIncome_SharePrice}
+    return ImpliedSharePrices
+
+def DiscountedCashFlow(ticker,PerYGrowth,tickerCashFlow,cash,debt,marketCap,shares):
     CFO = 0
     for i in range(4):
         CFO += tickerCashFlow['Cash Flow From Continuing Operating Activities'].iloc[i]
@@ -235,7 +229,7 @@ def main():
     futureCFO = []
     temp = CFO
     for i in range(4):
-        temp *= 1.25
+        temp *= (1 + PerYGrowth)
         futureCFO.append(temp)
         presentValueSum += presentValue(temp,wacc,i+2)
     terminalValue = tVal(futureCFO[3],TargetGrowthRate,wacc)
@@ -243,12 +237,32 @@ def main():
     EnterpriseValue = enVal(presentValueSum,PresentOfTerminal)
     EquityValue = eVal(EnterpriseValue,cash,debt)
     ImpliedSharePrice = sharePriceImpl(EquityValue, shares)
+    return {"ImpliedSharePrice" : ImpliedSharePrice, "FreeCashFlow" : CFO, "LastYearCashFlow" : futureCFO[3]}
+
+def main():
+    print("Enter the ticker you would like to evaluate: ")
+    ticker = 'LSCC'
+    ticker = yf.Ticker(ticker.upper())
+    print("Enter five similiar companies to compare to:")
+    '''for i in range(5):
+        temp = input()
+        toComp.append(yf.Ticker(temp.upper()))'''
+    toComp = [yf.Ticker('MTSI'),yf.Ticker('POWI'),yf.Ticker('QRVO'),yf.Ticker('RMBS'),yf.Ticker('SLAB')]
+    PerYGrowth = .25
+    tickerData = pullTickerData(ticker)
+    TradeCompPrices = TradeComps(toComp, tickerData['cash'], tickerData['debt'], tickerData['shares'], tickerData['eps'])
+    print("--Trading Comps--")
+    print("Implied Share Price from Revenue: ", TradeCompPrices['revenue_SharePrice'])
+    print("Implied Share Price from EBITDA: ", TradeCompPrices['ebitda_SharePrice'])
+    print("Implied Share Price from P/E: ", TradeCompPrices['netIncome_SharePrice'])
+    print()
     '''variables = [CFO,ExpectedReturn,risk_free_rate,beta,taxRate,CostofDebt,cash,debt,marketCap,EquityCost,debt+marketCap,EquityPercent, DebtPercent,wacc,terminalValue,presentValueSum,PresentOfTerminal,EnterpriseValue,EquityValue,shares,ImpliedSharePrice]
     for x in variables:
         print(x)'''
     print("--Discounted Cash Flow--")
-    print("Discounted Cash Flow Implied Share Price: ", ImpliedSharePrice)
+    print("Discounted Cash Flow Implied Share Price: ", DiscountedCashFlow(ticker,PerYGrowth,tickerData['tickerCashFlow'],tickerData['cash'],tickerData['debt'],tickerData['marketCap'],tickerData['shares']))
     print()
     print("Real Share Price:", ticker.info['regularMarketPreviousClose'])
+
 if __name__ == "__main__":
     main()
