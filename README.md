@@ -13,7 +13,7 @@ At least 3 layouts
 
 -Start
 
--Prompt Kris
+-Prompt - Kris
 
 -Dashboard
 
@@ -27,7 +27,7 @@ At least 3 layouts
 -DCF (returns an implied share price and a few data points)
 
 
-Database Polly
+Database - Polly
 
 -Create table with necessary variables
 
