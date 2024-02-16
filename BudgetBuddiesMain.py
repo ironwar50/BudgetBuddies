@@ -7,7 +7,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import datetime as dt
-import BuggetBuddies as eq
+import BudgetBuddies as eq
 import PageLayouts as pl
 
 app = dash.Dash(__name__)
