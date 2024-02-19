@@ -1,3 +1,4 @@
+
 from dash import html, Dash, dcc
 import navbar
 import dash_bootstrap_components as dbc
@@ -15,3 +16,4 @@ app.layout = html.Div(
         
 if __name__ == "__main__":
     app.run()
+
