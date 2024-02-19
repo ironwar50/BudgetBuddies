@@ -60,3 +60,9 @@ Problems
 
 -kinda runs slow
 
+-Dashboard sizes
+
+-dates input uncessary maybe
+
+-Get average yearly growth input
+
