@@ -1,184 +1,48 @@
 import yfinance as yf
 from fredapi import Fred
+import equations as eq
 fred = Fred(api_key='a02d5cbed56418e2d72837659e22b8ca')
 ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
 
-def enterprise_value(market_cap, debt, cash):
-    return market_cap + debt - cash
+'''
+Checks for occurences of missing data and sets it to zero
+'''
+def checkData(tickerData):
+    ''' for data in tickerData:
+            if not data < 0 or not data > 0:
+                return 0'''
+    return tickerData
 
-def revenue_multiple(enterprise_value, revenue):
-    return enterprise_value / revenue
-
-def ebitda_multiple(enterprise_value, ebitda):
-    return enterprise_value / ebitda
-
-def pe_ratio(market_cap, net_income):
-    return market_cap / net_income
-
-def implied_ev_from_revenue(revenue_multiple, revenue):
-    return revenue_multiple * revenue
-
-def implied_ev_from_ebitda(ebitda_multiple, ebitda):
-    return ebitda_multiple * ebitda
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def impliedValueRevenue(IEVR, Cash, Debt):
-    result = (IEVR + Cash - Debt) # are you sure its as simple as this?
-    if result != 0:
-        return result
-    else:
-        return None
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def impliedValueEBITDA(IEVE, Cash, Debt):
-    result = (IEVE + Cash - Debt) # once again, are you sure its as simple as this?
-    if result != 0:
-        return result
-    else:
-        return None
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def impliedValueNetIncome(EPS, Shares, PtoE):
-    result = (EPS * Shares * PtoE)
-    if result != 0:
-        return result
-    else:
-        return None
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def impliedSharePriceRevenue(IEQVR, Shares):
-    result = IEQVR / Shares
-    if result != 0:
-        return result
-    else:
-        return None
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def impliedSharePriceEBITDA(IEQVE, Shares):
-    result = IEQVE / Shares
-    if result != 0:
-        return result
-    else:
-        return None
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def impliedSharePriceNetIncome(IEQVN, Shares):
-    result = IEQVN / Shares
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def equityCost(Beta, ExpReturn, RiskFreeRate):
-    result = RiskFreeRate + (Beta * (ExpReturn - RiskFreeRate))
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def equityPercent(eVal, Debt):
-    result =  eVal / (Debt+ eVal)
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def debtPercent(Debt, eVal):
-    result = Debt / (Debt + eVal)
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def WACC(equityPercent, equityCost, debtPercent, debtCost, taxRate):
-    result = ((equityPercent * equityCost) + (debtPercent * debtCost * (1 - taxRate)))
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def tVal(LYCFO, TGR, WACC):
-    result = ((LYCFO * (1 + TGR)) / (WACC - TGR))
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-def presentValue(CFO, WACC, Year):
-    result = (CFO / ((1 + WACC)**Year))
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def presentTerminalValue(tVal, WACC, lYear):
-    result = (tVal / ((1 + WACC)**lYear))
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def enVal(presentValueSum, presentTerminalValue):
-    result = (presentValueSum + presentTerminalValue)
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def eVal(enVal, Cash, Debt):
-    result = (enVal + Cash - Debt)
-    if result != 0:
-        return result
-    else:
-        return None
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-def sharePriceImpl(eVal, shares):
-    if shares != 0:
-        return eVal / shares
-    else:
-        print("An exception has occurred.")
-        return None
-
+'''
+This function pulls all necessary data that is needed for calculations with a given ticker.
+Returns a dictionary of with the data. 
+'''
 def pullTickerData(ticker):
     tickerIncome = ticker.quarterly_income_stmt.transpose() 
-    tickerBalance = ticker.quarterly_balance_sheet.transpose()
+    tickerBalance = ticker.quarterly_balance_sheet.transpose()                                                              
     tickerCashFlow = ticker.quarterly_cash_flow.transpose()
-    marketCap = ticker.info['regularMarketPreviousClose'] * tickerIncome['Diluted Average Shares'].iloc[0]
-    revenue = 0
-    ebitda = 0
-    netIncome = 0
-    eps = 0
-    cash = tickerBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0]
-    debt = tickerBalance['Total Debt'].iloc[0]
-    shares = tickerIncome['Diluted Average Shares'].iloc[0]
-    for i in range(4):
-        eps += tickerIncome['Diluted EPS'].iloc[i]
-        revenue += tickerIncome['Total Revenue'].iloc[i]
-        ebitda += tickerIncome['Total Revenue'].iloc[i]
-        netIncome += tickerIncome['Net Income'].iloc[i]
-    return {"tickerCashFlow" : tickerCashFlow, "marketCap" : marketCap, "revenue" : revenue, "ebitda" : ebitda, 
-            "netIncome" : netIncome, "eps" : eps, "cash" : cash, "debt" : debt, "shares" : shares}
+    tickerData = {}
+    tickerData['makerCap'] = ticker.info['regularMarketPreviousClose'] * tickerIncome['Diluted Average Shares'].iloc[0]     
+    tickerData['revenue'] = 0
+    tickerData['ebitda'] = 0
+    tickerData['netIncome'] = 0                                                                                                 
+    tickerData['eps'] = 0
+    tickerData['cash'] = tickerBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0]
+    tickerData['debt'] = tickerBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0]
+    tickerData['shares'] = tickerIncome['Diluted Average Shares'].iloc[0]
+    for i in range(4):                                                                                                      
+        tickerData['revenue'] += tickerIncome['Total Revenue'].iloc[i]
+        tickerData['ebitda'] += tickerIncome['Total Revenue'].iloc[i]
+        tickerData['netIncome'] += tickerIncome['Net Income'].iloc[i]
+    tickerData = checkData(tickerData)                                                                                      
+    return {"tickerCashFlow" : tickerCashFlow, "marketCap" :  tickerData['makerCap'], "revenue" : tickerData['revenue'], "ebitda" : tickerData['ebitda'], 
+            "netIncome" : tickerData['netIncome'], "eps" : tickerData['eps'], "cash" : tickerData['cash'], "debt" : tickerData['debt'], "shares" : tickerData['shares']} 
    
+'''
+Performs the Trade Comps calculation. 
+Takes in the tickers being compared to along with the cash, debt, number of shares, and EPS of the target ticker.
+Returns a dictionary with the three calculated shares prices on revenue, EBITDA, and net income/Price to Earnings
+'''
 def TradeComps(toComp, cash, debt, shares, eps):
     AVG_rev_multi = 0 
     AVG_EBITDA_multi = 0
@@ -186,58 +50,69 @@ def TradeComps(toComp, cash, debt, shares, eps):
     for tick in toComp: 
         tickIncome = tick.quarterly_income_stmt.transpose()
         tickBalance = tick.quarterly_balance_sheet.transpose()
-        marketCap = tick.info['regularMarketPreviousClose']* tickIncome['Diluted Average Shares'].iloc[0]
-        revenue = 0
-        ebitda = 0
-        netIncome = 0
-        for i in range(4):
-            revenue += tickIncome['Total Revenue'].iloc[i]
-            ebitda += tickIncome['EBITDA'].iloc[i]
-            netIncome += tickIncome['Net Income'].iloc[i]
+        tickData = {}
+        tickData['marketCap'] = tick.info['regularMarketPreviousClose']* tickIncome['Diluted Average Shares'].iloc[0]
+        tickData['revenue'] = 0
+        tickData['ebitda'] = 0
+        tickData['netIncome'] = 0
+        for i in range(4):                                              
+            tickData['revenue'] += tickIncome['Total Revenue'].iloc[i]
+            tickData['ebitda']  += tickIncome['EBITDA'].iloc[i]
+            tickData['netIncome'] += tickIncome['Net Income'].iloc[i]
         if 'Total Debt' in tickBalance.keys():
             debt = tickBalance['Total Debt'].iloc[0]
         else:
             debt = 0
-        EV = enterprise_value(marketCap,debt,tickBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0])
-        AVG_rev_multi += revenue_multiple(EV, revenue)
-        AVG_EBITDA_multi += ebitda_multiple(EV, ebitda)
-        AVG_PE_ratio += pe_ratio(marketCap, netIncome)
+        tickData['cash'] = tickBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0]
+        tickData = checkData(tickData)
+        EV = eq.enterprise_value(tickData['marketCap'],debt,tickData['cash'])
+        AVG_rev_multi += eq.revenue_multiple(EV, tickData['revenue'])
+        AVG_EBITDA_multi += eq.ebitda_multiple(EV, tickData['ebitda'])
+        AVG_PE_ratio += eq.pe_ratio(tickData['marketCap'], tickData['netIncome'])
     AVG_rev_multi /= 5
     AVG_EBITDA_multi /= 5
     AVG_PE_ratio /= 5
-    revenue_SharePrice = impliedSharePriceRevenue(impliedValueRevenue(implied_ev_from_revenue(AVG_rev_multi,revenue),cash,debt),shares)
-    ebitda_SharePrice = impliedSharePriceEBITDA(impliedValueEBITDA(implied_ev_from_ebitda(AVG_EBITDA_multi,ebitda),cash,debt),shares)
-    NetIncome_SharePrice = impliedSharePriceNetIncome(impliedValueNetIncome(eps, shares, AVG_PE_ratio),shares)
-    ImpliedSharePrices = {"revenue_SharePrice" : revenue_SharePrice, "ebitda_SharePrice" : ebitda_SharePrice, "netIncome_SharePrice" : NetIncome_SharePrice}
-    return ImpliedSharePrices
+    revenue_SharePrice = eq.impliedSharePriceRevenue(eq.impliedValueRevenue(eq.implied_ev_from_revenue(AVG_rev_multi,tickData['revenue']),cash,debt),shares)
+    ebitda_SharePrice = eq.impliedSharePriceEBITDA(eq.impliedValueEBITDA(eq.implied_ev_from_ebitda(AVG_EBITDA_multi,tickData['ebitda']),cash,debt),shares)
+    NetIncome_SharePrice = eq.impliedSharePriceNetIncome(eq.impliedValueNetIncome(eps, shares, AVG_PE_ratio),shares)
+    
+    return {"revenue_SharePrice" : revenue_SharePrice, "ebitda_SharePrice" : ebitda_SharePrice, "netIncome_SharePrice" : NetIncome_SharePrice}
+
+'''
+Performs the Discounted Cash Flow calculation.
+Takes in the ticker, an averages estimated per year growth, the cashflow sheet, cash, debt, market cap, and number of shares of a given ticker.
+It returns a dictionary with the calculated shares price with the first and last year cash flow.
+'''
 
 def DiscountedCashFlow(ticker,PerYGrowth,tickerCashFlow,cash,debt,marketCap,shares):
-    CFO = 0
+    tickerData = {}
+    tickerData['CFO'] = 0
     for i in range(4):
-        CFO += tickerCashFlow['Cash Flow From Continuing Operating Activities'].iloc[i]
+        tickerData['CFO'] += tickerCashFlow['Cash Flow From Continuing Operating Activities'].iloc[i]
     risk_free_rate = ten_year_treasury_rate.iloc[-1]
-    taxRate = ticker.income_stmt.transpose()['Tax Rate For Calcs'].iloc[0]
-    beta = ticker.info['beta']
+    tickerData['taxRate'] = ticker.income_stmt.transpose()['Tax Rate For Calcs'].iloc[0]
+    tickerData['beta'] = ticker.info['beta']
+    tickerData = checkData(tickerData)
     TargetGrowthRate = .03
     ExpectedReturn = .08
     CostofDebt = .03
-    EquityCost = equityCost(beta, .08, risk_free_rate)
-    EquityPercent = equityPercent(marketCap + debt, debt)
-    DebtPercent = debtPercent(debt,marketCap+debt)
-    wacc = WACC(EquityPercent,EquityCost,DebtPercent,CostofDebt,taxRate)
-    presentValueSum = presentValue(CFO,wacc,1)
+    EquityCost = eq.equityCost(tickerData['beta'], ExpectedReturn, risk_free_rate)
+    EquityPercent = eq.equityPercent(marketCap + debt, debt)
+    DebtPercent = eq.debtPercent(debt,marketCap+debt)
+    wacc = eq.WACC(EquityPercent,EquityCost,DebtPercent,CostofDebt,tickerData['taxRate'])
+    presentValueSum = eq.presentValue(tickerData['CFO'],wacc,1)
     futureCFO = []
-    temp = CFO
+    temp = tickerData['CFO']
     for i in range(4):
         temp *= (1 + PerYGrowth)
         futureCFO.append(temp)
-        presentValueSum += presentValue(temp,wacc,i+2)
-    terminalValue = tVal(futureCFO[3],TargetGrowthRate,wacc)
-    PresentOfTerminal = presentTerminalValue(terminalValue,wacc,5)
-    EnterpriseValue = enVal(presentValueSum,PresentOfTerminal)
-    EquityValue = eVal(EnterpriseValue,cash,debt)
-    ImpliedSharePrice = sharePriceImpl(EquityValue, shares)
-    return {"ImpliedSharePrice" : ImpliedSharePrice, "FreeCashFlow" : CFO, "LastYearCashFlow" : futureCFO[3]}
+        presentValueSum += eq.presentValue(temp,wacc,i+2)
+    terminalValue = eq.tVal(futureCFO[3],TargetGrowthRate,wacc)
+    PresentOfTerminal = eq.presentTerminalValue(terminalValue,wacc,5)
+    EnterpriseValue = eq.enVal(presentValueSum,PresentOfTerminal)
+    EquityValue = eq.eVal(EnterpriseValue,cash,debt)
+    ImpliedSharePrice = eq.sharePriceImpl(EquityValue, shares)
+    return {"ImpliedSharePrice" : ImpliedSharePrice, "FreeCashFlow" : tickerData['CFO'], "LastYearCashFlow" : futureCFO[3]}
 
 def main():
     print("Enter the ticker you would like to evaluate: ")
