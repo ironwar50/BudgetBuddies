@@ -1,11 +1,7 @@
-4 Files
-
--Main (webpage and integration)
-
+4 Files  
+-Main (webpage and integration) 
 -PageLayouts (stores layouts for each page)
-
--Algorithm 
-
+-Algorithm
 -Database
 
 
