@@ -3,7 +3,7 @@ from dash import html
 from PageLayouts import Dashboard 
 import datetime as dt
 import yfinance as yf
-import BuggetBuddies as eq
+import BudgetBuddies as eq
 import plotly.graph_objects as go
 
 
