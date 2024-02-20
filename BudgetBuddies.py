@@ -8,9 +8,9 @@ ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
 Checks for occurences of missing data and sets it to zero
 '''
 def checkData(tickerData):
-    for data in tickerData:
-        if not data < 0 or not data > 0:
-            return 0
+    ''' for data in tickerData:
+            if not data < 0 or not data > 0:
+                return 0'''
     return tickerData
 
 '''
@@ -64,7 +64,7 @@ def TradeComps(toComp, cash, debt, shares, eps):
         else:
             debt = 0
         tickData['cash'] = tickBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0]
-        tickerData = checkData(tickerData)
+        tickData = checkData(tickData)
         EV = eq.enterprise_value(tickData['marketCap'],debt,tickData['cash'])
         AVG_rev_multi += eq.revenue_multiple(EV, tickData['revenue'])
         AVG_EBITDA_multi += eq.ebitda_multiple(EV, tickData['ebitda'])
