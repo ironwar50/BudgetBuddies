@@ -10,40 +10,40 @@ def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarg
         ),
         html.Div([
                 html.P("Last Close",style={'display' : 'inline-block','margin-left' : '150px'}),
-                html.P(LastClose,style={'float' : 'right','display' : 'inline-block','margin-right' : '150px'})
+                html.P(LastClose,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
                 html.P("P/E",style={'display' : 'inline-block','margin-left' : '150px'}),
-                html.P("%0.2f" %TrailingPE,style={'float' : 'right','display' : 'inline-block','margin-right' : '150px'})
+                html.P("%0.2f" %TrailingPE,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
                 html.P("Forward P/E",style={'display' : 'inline-block','margin-left' : '150px'}),
-                html.P("%0.2f" %ForwardPE,style={'float' : 'right','display' : 'inline-block','margin-right' : '150px'})
+                html.P("%0.2f" %ForwardPE,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
                 html.P("Analyst Target",style={'display' : 'inline-block','margin-left' : '150px'}),
-                html.P(avgAnalystTarget,style={'float' : 'right','display' : 'inline-block','margin-right' : '150px'})
+                html.P(avgAnalystTarget,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Br(),
         html.H2("Discounted Cash Flow",style={'display' : 'inline-block','margin-left' : '150px'}),
         html.Div([
             html.P("Current Cash Flow",style={'display' : 'inline-block','margin-left' : '150px'}),
-            html.P(DCF_ImpliedPrice['FreeCashFlow'],style={'float' : 'right','display' : 'inline-block','margin-right' : '150px'})
+            html.P(DCF_ImpliedPrice['FreeCashFlow'],style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-            html.P("Average Yearly Growth",style={'display' : 'inline-block','margin-left' : '150px'}),
-            html.P(PerYGrowth,style={'float' : 'right','display' : 'inline-block','margin-right' : '150px'})
+            html.P("Average Yearly Growth",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P(PerYGrowth,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-            html.P("Year Five Cash Flow",style={'display' : 'inline-block','margin-left' : '150px'}),
-            html.P("%0.2f" %DCF_ImpliedPrice['LastYearCashFlow'],style={'float' : 'right','display' : 'inline-block','margin-right' : '150px'})
+            html.P("Year Five Cash Flow",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P("%0.2f" %DCF_ImpliedPrice['LastYearCashFlow'],style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-            html.P("Implied Share Price",style={'display' : 'inline-block','margin-left' : '150px'}),
-            html.P("%0.2f" %DCF_ImpliedPrice['ImpliedSharePrice'],style={'float' : 'right','display' : 'inline-block','margin-right' : '150px'})
+            html.P("Implied Share Price",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P("%0.2f" %DCF_ImpliedPrice['ImpliedSharePrice'],style={'float' : 'right','display' : 'inline-block'})
         ])
 
-    ],style={'textAlign' : 'top' ,'width' : '30%', 'display' : 'inline-block','margin-left' : '450px'}),
+    ],style={'textAlign' : 'top' ,'width' : '45%', 'display' : 'inline-block', 'margin-left' : '50px'}),
     html.Div([
         dcc.Graph(figure=fig),
         html.Div(toCompDiv, style={'float' : 'center'}),
@@ -52,7 +52,7 @@ def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarg
             html.P("EBITDA Share Price: "+str("%0.2f" %TradeComps_ImpliedPrices['ebitda_SharePrice']),style={'display' : 'inline-block', 'margin-left' : '50px'}),
             html.P("P/E Share Price: "+str("%0.2f" %TradeComps_ImpliedPrices['netIncome_SharePrice']),style={'display' : 'inline-block', 'margin-left' : '50px'}),
         ],style={'textAlign' : 'center'})
-    ],style={'width' : '30%', 'display' : 'inline-block', 'float' : 'right', 'margin-right' : '450px'}),
+    ],style={ 'width' : '45%', 'display' : 'inline-block', 'float' : 'right', 'margin-right' : '50px'}),
 ])
 
 def upload_data_layout():
