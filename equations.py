@@ -1,3 +1,13 @@
+''''''''''''''''''''''''''''''''''''''''''''''''
+"""
+----Trade Comp Model Equations-----
+Trade Comps calculate a share price for a target company based on financial metrics
+from similar companies. This is done by calculating average financial multiples based on
+revenue, earnings before interest taxes depreciation and amortization(ebitda), and 
+net income (P/E). These are used to calculate and implied interprise value, which is 
+then used to get an implied equity value. The share price can then simply be found by
+dividing the equity value by the number of shares outstanding. 
+"""
 '''
 Enterprise value is a measure of the total value of a company
 Necessary for calculating various ratios
@@ -128,21 +138,42 @@ def impliedSharePriceNetIncome(IEQVN, Shares):
         return result
     else:
         return None
+''''''''''''''''''''''''''''''''''''''''''''''''
 
+''''''''''''''''''''''''''''''''''''''''''''''''
+"""
+----Discounted Cash Flow Model Equations----
+The Discounted cash flow model is a valuation model that calculates 
+a share price for a target company based on predicted future cash flow 
+growth. In this case we use the perpetuity growth method to calculate a 
+terminal value. We can use a WACC to discount the projected growth to a present 
+value. Using the value you can then calculate a present implied enterprise value.
+With that you can simply get to an implied equity value and divide by the number of shares
+outstanding to get the implied share price.
+"""
+'''
+The cost of equity is the expected rate of return for an equity investment. It takes in a beta
+which a measure of stock volatility, an expected return and then 10 year treasurey which is refered
+to here as the risk free rate. A growth rate is returned based on these factors.
+'''
 def equityCost(Beta, ExpReturn, RiskFreeRate):
     result = RiskFreeRate + (Beta * (ExpReturn - RiskFreeRate))
     if result != 0:
         return result
     else:
         return None
-
+'''
+Ratio of the equity to equity + debt
+'''
 def equityPercent(eVal, Debt):
     result =  eVal / (Debt+ eVal)
     if result != 0:
         return result
     else:
-        return None
-
+        return None    
+'''
+Ratio of the equity to equity + debt
+'''
 def debtPercent(Debt, eVal):
     result = Debt / (Debt + eVal)
     if result != 0:
@@ -150,6 +181,10 @@ def debtPercent(Debt, eVal):
     else:
         return None
 
+'''
+The WACC is the rate of return required to fund future growth. We use this for the dicounting 
+certain value in the calculations. 
+'''
 def WACC(equityPercent, equityCost, debtPercent, debtCost, taxRate):
     result = ((equityPercent * equityCost) + (debtPercent * debtCost * (1 - taxRate)))
     if result != 0:
@@ -157,6 +192,10 @@ def WACC(equityPercent, equityCost, debtPercent, debtCost, taxRate):
     else:
         return None
 
+'''
+The Terminal Value is the final expected value of a company based on the perpetuity growth function. 
+It takes in the last year free cash flow, a target growth rate, and the WACC. 
+'''
 def tVal(LYCFO, TGR, WACC):
     result = ((LYCFO * (1 + TGR)) / (WACC - TGR))
     if result != 0:
@@ -164,6 +203,9 @@ def tVal(LYCFO, TGR, WACC):
     else:
         return None
 
+'''
+The present value discounts the free cash flow for a specific year using the WACC. 
+'''
 def presentValue(CFO, WACC, Year):
     result = (CFO / ((1 + WACC)**Year))
     if result != 0:
@@ -171,6 +213,9 @@ def presentValue(CFO, WACC, Year):
     else:
         return None
 
+'''
+The present terminal value in the discounted terminal value based on the number of years forcasted
+'''
 def presentTerminalValue(tVal, WACC, lYear):
     result = (tVal / ((1 + WACC)**lYear))
     if result != 0:
@@ -178,6 +223,10 @@ def presentTerminalValue(tVal, WACC, lYear):
     else:
         return None
 
+'''
+Enterprise value is a sum of the sum of present values from each year forcasted along with
+the present terminal value. 
+'''
 def enVal(presentValueSum, presentTerminalValue):
     result = (presentValueSum + presentTerminalValue)
     if result != 0:
@@ -185,6 +234,9 @@ def enVal(presentValueSum, presentTerminalValue):
     else:
         return None
 
+'''
+The Equity value is calculated by taking the Enterprise value, adding cash, and subtracting debt
+'''
 def eVal(enVal, Cash, Debt):
     result = (enVal + Cash - Debt)
     if result != 0:
@@ -192,6 +244,9 @@ def eVal(enVal, Cash, Debt):
     else:
         return None
 
+'''
+The implied share price is calculated by diving the equity value from the number of shares.
+'''
 def sharePriceImpl(eVal, shares):
     if shares != 0:
         return eVal / shares
