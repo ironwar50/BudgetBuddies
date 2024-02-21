@@ -17,7 +17,7 @@ def enterprise_value(market_cap, debt, cash):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 The ratio of enterprise value to revenue
@@ -30,7 +30,7 @@ def revenue_multiple(enterprise_value, revenue):
     if result != 0:
         return result
     else:
-        return None 
+        return 0 
 '''
 The ratio of enterprise value to ebitda
 '''
@@ -39,7 +39,7 @@ def ebitda_multiple(enterprise_value, ebitda):
     if result != 0:
         return result
     else:
-        return None 
+        return 0 
 '''
 Price to Earning (P/E) is the ratio of the total value of a company 
 based on share price to it's net income. It's also commonly calculated
@@ -50,7 +50,7 @@ def pe_ratio(market_cap, net_income):
     if result != 0:
         return result
     else:
-        return None 
+        return 0 
 
 '''
 This takes a revenue multiple and multiplies it by a given revenue
@@ -62,7 +62,7 @@ def implied_ev_from_revenue(revenue_multiple, revenue):
     if result != 0:
         return result
     else:
-        return None 
+        return 0 
      
 '''
 This takes a ebitda multiple and multiplies it by a given ebitda
@@ -74,7 +74,7 @@ def implied_ev_from_ebitda(ebitda_multiple, ebitda):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 This takes the implied enterprise value based of revenue along with
@@ -87,7 +87,7 @@ def impliedValueRevenue(IEVR, Cash, Debt):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 This takes the implied enterprise value based of ebitda along with
@@ -100,7 +100,7 @@ def impliedValueEBITDA(IEVE, Cash, Debt):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 This takes the average P/E ratio of comparative companies, 
@@ -113,7 +113,7 @@ def impliedValueNetIncome(EPS, Shares, PtoE):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 The next three equations calculate an implied share price by
@@ -125,19 +125,19 @@ def impliedSharePriceRevenue(IEQVR, Shares):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 def impliedSharePriceEBITDA(IEQVE, Shares):
     result = IEQVE / Shares
     if result != 0:
         return result
     else:
-        return None
+        return 0
 def impliedSharePriceNetIncome(IEQVN, Shares):
     result = IEQVN / Shares
     if result != 0:
         return result
     else:
-        return None
+        return 0
 ''''''''''''''''''''''''''''''''''''''''''''''''
 
 ''''''''''''''''''''''''''''''''''''''''''''''''
@@ -161,7 +161,7 @@ def equityCost(Beta, ExpReturn, RiskFreeRate):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 '''
 Ratio of the equity to equity + debt
 '''
@@ -170,7 +170,7 @@ def equityPercent(eVal, Debt):
     if result != 0:
         return result
     else:
-        return None    
+        return 0    
 '''
 Ratio of the equity to equity + debt
 '''
@@ -179,7 +179,7 @@ def debtPercent(Debt, eVal):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 The WACC is the rate of return required to fund future growth. We use this for the dicounting 
@@ -190,7 +190,7 @@ def WACC(equityPercent, equityCost, debtPercent, debtCost, taxRate):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 The Terminal Value is the final expected value of a company based on the perpetuity growth function. 
@@ -201,7 +201,7 @@ def tVal(LYCFO, TGR, WACC):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 The present value discounts the free cash flow for a specific year using the WACC. 
@@ -211,7 +211,7 @@ def presentValue(CFO, WACC, Year):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 The present terminal value in the discounted terminal value based on the number of years forcasted
@@ -221,7 +221,7 @@ def presentTerminalValue(tVal, WACC, lYear):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 Enterprise value is a sum of the sum of present values from each year forcasted along with
@@ -232,7 +232,7 @@ def enVal(presentValueSum, presentTerminalValue):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 The Equity value is calculated by taking the Enterprise value, adding cash, and subtracting debt
@@ -242,7 +242,7 @@ def eVal(enVal, Cash, Debt):
     if result != 0:
         return result
     else:
-        return None
+        return 0
 
 '''
 The implied share price is calculated by diving the equity value from the number of shares.
@@ -252,4 +252,4 @@ def sharePriceImpl(eVal, shares):
         return eVal / shares
     else:
         print("An exception has occurred.")
-        return None
+        return 0

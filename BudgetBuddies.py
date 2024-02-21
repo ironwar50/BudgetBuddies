@@ -8,9 +8,9 @@ ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
 Checks for occurences of missing data and sets it to zero
 '''
 def checkData(tickerData):
-    ''' for data in tickerData:
-            if not data < 0 or not data > 0:
-                return 0'''
+    for key in tickerData.keys():
+        if str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A':
+            tickerData[key] = 0
     return tickerData
 
 '''
@@ -22,19 +22,29 @@ def pullTickerData(ticker):
     tickerBalance = ticker.quarterly_balance_sheet.transpose()                                                              
     tickerCashFlow = ticker.quarterly_cash_flow.transpose()
     tickerData = {}
-    tickerData['makerCap'] = ticker.info['regularMarketPreviousClose'] * tickerIncome['Diluted Average Shares'].iloc[0]     
+    tickerData['makerCap'] = ticker.info['marketCap']
     tickerData['revenue'] = 0
     tickerData['ebitda'] = 0
     tickerData['netIncome'] = 0                                                                                                 
-    tickerData['eps'] = 0
-    tickerData['cash'] = tickerBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0]
-    tickerData['debt'] = tickerBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0]
-    tickerData['shares'] = tickerIncome['Diluted Average Shares'].iloc[0]
+    if 'totalCash' in ticker.info.keys():
+        tickerData['cash'] = ticker.info['totalCash']
+    elif "Total Debt" in tickerBalance.keys():
+        tickerData['cash'] = tickerBalance['Cash Cash Equivalents And Short Term Investments']
+    else: 
+        tickerData['debt'] = 0
+    if 'totalDebt' in ticker.info.keys():
+        tickerData['debt'] = ticker.info['totalDebt']
+    elif "Total Debt" in tickerBalance.keys():
+        tickerData['debt'] = tickerBalance['Total Debt']
+    else: 
+        tickerData['debt'] = 0
+    tickerData['shares'] = ticker.info['sharesOutstanding'] 
+    tickerData['eps'] = ticker.info['trailingEps'] 
     for i in range(4):                                                                                                      
         tickerData['revenue'] += tickerIncome['Total Revenue'].iloc[i]
         tickerData['ebitda'] += tickerIncome['Total Revenue'].iloc[i]
         tickerData['netIncome'] += tickerIncome['Net Income'].iloc[i]
-    tickerData = checkData(tickerData)                                                                                      
+    tickerData = checkData(tickerData)                                                                                
     return {"tickerCashFlow" : tickerCashFlow, "marketCap" :  tickerData['makerCap'], "revenue" : tickerData['revenue'], "ebitda" : tickerData['ebitda'], 
             "netIncome" : tickerData['netIncome'], "eps" : tickerData['eps'], "cash" : tickerData['cash'], "debt" : tickerData['debt'], "shares" : tickerData['shares']} 
    
@@ -51,7 +61,7 @@ def TradeComps(toComp, cash, debt, shares, eps):
         tickIncome = tick.quarterly_income_stmt.transpose()
         tickBalance = tick.quarterly_balance_sheet.transpose()
         tickData = {}
-        tickData['marketCap'] = tick.info['regularMarketPreviousClose']* tickIncome['Diluted Average Shares'].iloc[0]
+        tickData['marketCap'] = tick.info['marketCap']
         tickData['revenue'] = 0
         tickData['ebitda'] = 0
         tickData['netIncome'] = 0
@@ -59,11 +69,19 @@ def TradeComps(toComp, cash, debt, shares, eps):
             tickData['revenue'] += tickIncome['Total Revenue'].iloc[i]
             tickData['ebitda']  += tickIncome['EBITDA'].iloc[i]
             tickData['netIncome'] += tickIncome['Net Income'].iloc[i]
-        if 'Total Debt' in tickBalance.keys():
-            debt = tickBalance['Total Debt'].iloc[0]
-        else:
-            debt = 0
-        tickData['cash'] = tickBalance['Cash Cash Equivalents And Short Term Investments'].iloc[0]
+        tickData['cash'] = tick.info['totalCash']
+        if 'totalCash' in tick.info.keys():
+            tickData['cash'] = tick.info['totalCash']
+        elif "Total Debt" in tickBalance.keys():
+            tickData['cash'] = tickBalance['Cash Cash Equivalents And Short Term Investments']
+        else: 
+            tickData['debt'] = 0
+        if 'totalDebt' in tick.info.keys():
+            tickData['debt'] = tick.info['totalDebt']
+        elif "Total Debt" in tickBalance.keys():
+            tickData['debt'] = tickBalance['Total Debt']
+        else: 
+            tickData['debt'] = 0
         tickData = checkData(tickData)
         EV = eq.enterprise_value(tickData['marketCap'],debt,tickData['cash'])
         AVG_rev_multi += eq.revenue_multiple(EV, tickData['revenue'])
@@ -131,9 +149,6 @@ def main():
     print("Implied Share Price from EBITDA: ", TradeCompPrices['ebitda_SharePrice'])
     print("Implied Share Price from P/E: ", TradeCompPrices['netIncome_SharePrice'])
     print()
-    '''variables = [CFO,ExpectedReturn,risk_free_rate,beta,taxRate,CostofDebt,cash,debt,marketCap,EquityCost,debt+marketCap,EquityPercent, DebtPercent,wacc,terminalValue,presentValueSum,PresentOfTerminal,EnterpriseValue,EquityValue,shares,ImpliedSharePrice]
-    for x in variables:
-        print(x)'''
     print("--Discounted Cash Flow--")
     print("Discounted Cash Flow Implied Share Price: ", DiscountedCashFlow(ticker,PerYGrowth,tickerData['tickerCashFlow'],tickerData['cash'],tickerData['debt'],tickerData['marketCap'],tickerData['shares']))
     print()
