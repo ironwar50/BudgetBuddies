@@ -5,21 +5,26 @@ import datetime as dt
 import yfinance as yf
 import BudgetBuddies as eq
 import plotly.graph_objects as go
+from tickerData import Ticker
 
 
 def create_dashboard():
     end = dt.datetime.now()
     start = end - dt.timedelta(days = 365*3)
-    ticker = 'LSCC'
-    symbol = ticker.upper()
-    ticker = ticker = yf.Ticker(symbol)
-    toComp = [yf.Ticker('MTSI'),yf.Ticker('MPWR'),yf.Ticker('QRVO'),yf.Ticker('RMBS'),yf.Ticker('SLAB')]
+    tickerSymbol = 'LSCC'
+    ticker = Ticker(tickerSymbol)
+    ticker.pullData()
+    tickerData = ticker.getData()
+    toComp = [Ticker('MTSI'),Ticker('POWI'),
+              Ticker('QRVO'),Ticker('RMBS'),Ticker('SLAB')]
     PerYGrowth = .25
     toCompData = []
     for comp in toComp:
-        temp = (comp.info['symbol'], comp.info['previousClose'])
+        compData = comp.getData()
+        tick = compData['ticker']
+        temp = (tick.info['symbol'], tick.info['previousClose'])
         toCompData.append(temp)
-    df = ticker.history(start = start, end = end)
+    df = tickerData['ticker'].history(start = start, end = end)
     #df = df['Close']
     #fig = px.line(df, " "," ", title="LSCC")
     fig = go.Figure(data=[go.Candlestick(
@@ -27,15 +32,14 @@ def create_dashboard():
                     high=df['High'],
                     low=df['Low'],
                     close=df['Close'], name = "LSCC")])
-    tickerInfo = ticker.info
+    tickerInfo = tickerData['ticker'].info
     FullName = tickerInfo['longName']
     LastClose = tickerInfo['previousClose']
     TrailingPE = tickerInfo['trailingPE']
     ForwardPE = tickerInfo['forwardPE']
     avgAnalystTarget = tickerInfo['targetMeanPrice']
-    tickerData = eq.pullTickerData(ticker)
-    TradeComps_ImpliedPrices = eq.TradeComps(toComp, tickerData['cash'], tickerData['debt'], tickerData['shares'], tickerData['eps'], tickerData['ebitda'], tickerData['revenue'])
-    DCF_ImpliedPrice = eq.DiscountedCashFlow(ticker, PerYGrowth,  tickerData['tickerCashFlow'], tickerData['cash'], tickerData['debt'], tickerData['marketCap'], tickerData['shares'])
+    TradeComps_ImpliedPrices = eq.TradeComps(toComp, tickerData)
+    DCF_ImpliedPrice = eq.DiscountedCashFlow(tickerData,PerYGrowth)
     toCompDiv = []
     x = 0
     for data in toCompData:
@@ -45,5 +49,5 @@ def create_dashboard():
             toCompDiv.append(html.P(str(data[0])+":   "+str(data[1]),style={'display' : 'inline-block'}))
             x+=1
             
-    return Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget,DCF_ImpliedPrice,PerYGrowth,
+    return Dashboard(FullName, tickerSymbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget,DCF_ImpliedPrice,PerYGrowth,
                 fig, toCompDiv, TradeComps_ImpliedPrices)
