@@ -34,11 +34,10 @@ Error Checking - Alexis
 
 
 Problems  
--unreliable data (ex. POWI)   
--negative numbers  
--stock graph (line, candlestick)  
--kinda runs slow  
--Dashboard sizes  
+-unreliable data (ex. POWI) *Improved   
+-negative numbers  *Set to zero but still thats the right move
+-stock graph (line, candlestick) *Still need look at how to pull dates
+-Dashboard sizes  *possibly minimally improved, not fixed
 -dates input uncessary maybe  
 -Get average yearly growth input
 
