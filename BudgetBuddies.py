@@ -93,7 +93,6 @@ def TradeComps(toComp, cash, debt, shares, eps, ebitda, revenue):
         else: 
             tickData['PE'] = 0
         tickData = checkData(tickData)
-        print(tickData['ebitda'])
         if 'enterpriseValue' in tickInfo.keys():
             EV = tickInfo['enterpriseValue']
         else: 
@@ -116,9 +115,6 @@ def TradeComps(toComp, cash, debt, shares, eps, ebitda, revenue):
     AVG_rev_multi /= revNum
     AVG_EBITDA_multi /= ebitdaNum
     AVG_PE_ratio /= netIncNum
-    print(AVG_rev_multi, revNum)
-    print(AVG_EBITDA_multi, netIncNum)
-    print(AVG_PE_ratio, revNum)
     revenue_SharePrice = eq.impliedSharePriceRevenue(eq.impliedValueRevenue(eq.implied_ev_from_revenue(AVG_rev_multi,revenue),cash,debt),shares)
     ebitda_SharePrice = eq.impliedSharePriceEBITDA(eq.impliedValueEBITDA(eq.implied_ev_from_ebitda(AVG_EBITDA_multi,ebitda),cash,debt),shares)
     NetIncome_SharePrice = eq.impliedSharePriceNetIncome(eq.impliedValueNetIncome(eps, shares, AVG_PE_ratio),shares)

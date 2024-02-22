@@ -34,7 +34,7 @@ def create_dashboard():
     ForwardPE = tickerInfo['forwardPE']
     avgAnalystTarget = tickerInfo['targetMeanPrice']
     tickerData = eq.pullTickerData(ticker)
-    TradeComps_ImpliedPrices = eq.TradeComps(toComp, tickerData['cash'], tickerData['debt'], tickerData['shares'], tickerData['eps'])
+    TradeComps_ImpliedPrices = eq.TradeComps(toComp, tickerData['cash'], tickerData['debt'], tickerData['shares'], tickerData['eps'], tickerData['ebitda'], tickerData['revenue'])
     DCF_ImpliedPrice = eq.DiscountedCashFlow(ticker, PerYGrowth,  tickerData['tickerCashFlow'], tickerData['cash'], tickerData['debt'], tickerData['marketCap'], tickerData['shares'])
     toCompDiv = []
     for data in toCompData:
