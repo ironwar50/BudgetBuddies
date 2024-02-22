@@ -53,13 +53,17 @@ Performs the Trade Comps calculation.
 Takes in the tickers being compared to along with the cash, debt, number of shares, and EPS of the target ticker.
 Returns a dictionary with the three calculated shares prices on revenue, EBITDA, and net income/Price to Earnings
 '''
-def TradeComps(toComp, cash, debt, shares, eps):
+def TradeComps(toComp, cash, debt, shares, eps, ebitda, revenue):
     AVG_rev_multi = 0 
     AVG_EBITDA_multi = 0
     AVG_PE_ratio = 0
+    revNum = 0
+    ebitdaNum = 0
+    netIncNum = 0
     for tick in toComp: 
         tickIncome = tick.quarterly_income_stmt.transpose()
         tickBalance = tick.quarterly_balance_sheet.transpose()
+        tickInfo = tick.info
         tickData = {}
         tickData['marketCap'] = tick.info['marketCap']
         tickData['revenue'] = 0
@@ -69,32 +73,58 @@ def TradeComps(toComp, cash, debt, shares, eps):
             tickData['revenue'] += tickIncome['Total Revenue'].iloc[i]
             tickData['ebitda']  += tickIncome['EBITDA'].iloc[i]
             tickData['netIncome'] += tickIncome['Net Income'].iloc[i]
-        tickData['cash'] = tick.info['totalCash']
-        if 'totalCash' in tick.info.keys():
-            tickData['cash'] = tick.info['totalCash']
+        tickData['cash'] = tickInfo['totalCash']
+        if 'totalCash' in tickInfo.keys():
+            tickData['cash'] = tickInfo['totalCash']
         elif "Total Debt" in tickBalance.keys():
             tickData['cash'] = tickBalance['Cash Cash Equivalents And Short Term Investments']
         else: 
             tickData['debt'] = 0
-        if 'totalDebt' in tick.info.keys():
-            tickData['debt'] = tick.info['totalDebt']
+        if 'totalDebt' in tickInfo.keys():
+            tickData['debt'] = tickInfo['totalDebt']
         elif "Total Debt" in tickBalance.keys():
             tickData['debt'] = tickBalance['Total Debt']
         else: 
             tickData['debt'] = 0
+        if 'trailingPE' in tickInfo.keys():
+            tickData['PE'] = tickInfo['trailingPE']
+        elif 'forwardPE' in tickInfo.keys():
+            tickData['PE'] = tickInfo['forwardPE']
+        else: 
+            tickData['PE'] = 0
         tickData = checkData(tickData)
-        EV = eq.enterprise_value(tickData['marketCap'],debt,tickData['cash'])
-        AVG_rev_multi += eq.revenue_multiple(EV, tickData['revenue'])
-        AVG_EBITDA_multi += eq.ebitda_multiple(EV, tickData['ebitda'])
-        AVG_PE_ratio += eq.pe_ratio(tickData['marketCap'], tickData['netIncome'])
-    AVG_rev_multi /= 5
-    AVG_EBITDA_multi /= 5
-    AVG_PE_ratio /= 5
-    revenue_SharePrice = eq.impliedSharePriceRevenue(eq.impliedValueRevenue(eq.implied_ev_from_revenue(AVG_rev_multi,tickData['revenue']),cash,debt),shares)
-    ebitda_SharePrice = eq.impliedSharePriceEBITDA(eq.impliedValueEBITDA(eq.implied_ev_from_ebitda(AVG_EBITDA_multi,tickData['ebitda']),cash,debt),shares)
+        print(tickData['ebitda'])
+        if 'enterpriseValue' in tickInfo.keys():
+            EV = tickInfo['enterpriseValue']
+        else: 
+            EV = eq.enterprise_value(tickData['marketCap'],tickData['debt'],tickData['cash'])
+        if 'enterpriseToRevenue' in tickInfo.keys():
+            AVG_rev_multi += tickInfo['enterpriseToRevenue']
+            revNum+=1
+        elif tickData['revenue'] > 0: 
+            AVG_rev_multi += eq.revenue_multiple(EV, tickData['revenue'])
+            revNum+=1
+        if 'enterpriseToEbitda' in tickInfo.keys():
+            AVG_EBITDA_multi += tickInfo['enterpriseToRevenue']
+            ebitdaNum+=1
+        elif tickData['ebitda'] > 0: 
+            AVG_EBITDA_multi += eq.ebitda_multiple(EV, tickData['ebitda'])
+            ebitdaNum+=1
+        if tickData['PE'] > 0: 
+            AVG_PE_ratio += tickData['PE']
+            netIncNum+=1
+    AVG_rev_multi /= revNum
+    AVG_EBITDA_multi /= ebitdaNum
+    AVG_PE_ratio /= netIncNum
+    print(AVG_rev_multi, revNum)
+    print(AVG_EBITDA_multi, netIncNum)
+    print(AVG_PE_ratio, revNum)
+    revenue_SharePrice = eq.impliedSharePriceRevenue(eq.impliedValueRevenue(eq.implied_ev_from_revenue(AVG_rev_multi,revenue),cash,debt),shares)
+    ebitda_SharePrice = eq.impliedSharePriceEBITDA(eq.impliedValueEBITDA(eq.implied_ev_from_ebitda(AVG_EBITDA_multi,ebitda),cash,debt),shares)
     NetIncome_SharePrice = eq.impliedSharePriceNetIncome(eq.impliedValueNetIncome(eps, shares, AVG_PE_ratio),shares)
+    AVG_SharePrice = (revenue_SharePrice + ebitda_SharePrice + NetIncome_SharePrice) / 3
     
-    return {"revenue_SharePrice" : revenue_SharePrice, "ebitda_SharePrice" : ebitda_SharePrice, "netIncome_SharePrice" : NetIncome_SharePrice}
+    return {"revenue_SharePrice" : revenue_SharePrice, "ebitda_SharePrice" : ebitda_SharePrice, "netIncome_SharePrice" : NetIncome_SharePrice, "average_SharePrice" : AVG_SharePrice}
 
 '''
 Performs the Discounted Cash Flow calculation.
@@ -136,18 +166,17 @@ def main():
     print("Enter the ticker you would like to evaluate: ")
     ticker = 'LSCC'
     ticker = yf.Ticker(ticker.upper())
+    #print(ticker.info)
     print("Enter five similiar companies to compare to:")
-    '''for i in range(5):
-        temp = input()
-        toComp.append(yf.Ticker(temp.upper()))'''
     toComp = [yf.Ticker('MTSI'),yf.Ticker('POWI'),yf.Ticker('QRVO'),yf.Ticker('RMBS'),yf.Ticker('SLAB')]
     PerYGrowth = .25
     tickerData = pullTickerData(ticker)
-    TradeCompPrices = TradeComps(toComp, tickerData['cash'], tickerData['debt'], tickerData['shares'], tickerData['eps'])
+    TradeCompPrices = TradeComps(toComp, tickerData['cash'], tickerData['debt'], tickerData['shares'], tickerData['eps'],  tickerData['ebitda'],  tickerData['revenue'])
     print("--Trading Comps--")
     print("Implied Share Price from Revenue: ", TradeCompPrices['revenue_SharePrice'])
     print("Implied Share Price from EBITDA: ", TradeCompPrices['ebitda_SharePrice'])
     print("Implied Share Price from P/E: ", TradeCompPrices['netIncome_SharePrice'])
+    print("Average Share Price: ", TradeCompPrices['average_SharePrice'])
     print()
     print("--Discounted Cash Flow--")
     print("Discounted Cash Flow Implied Share Price: ", DiscountedCashFlow(ticker,PerYGrowth,tickerData['tickerCashFlow'],tickerData['cash'],tickerData['debt'],tickerData['marketCap'],tickerData['shares']))
