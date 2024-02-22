@@ -46,8 +46,8 @@ def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarg
     ],style={'textAlign' : 'top' ,'width' : '45%', 'display' : 'inline-block', 'margin-left' : '50px'}),
     html.Div([
         dcc.Graph(figure=fig),
-        html.Div(toCompDiv, style={'float' : 'center'}),
         html.Div([
+            html.Div(toCompDiv),
             html.P("Revenue Share Price: "+str("%0.2f" %TradeComps_ImpliedPrices['revenue_SharePrice']),style={'display' : 'inline-block'}),
             html.P("EBITDA Share Price: "+str("%0.2f" %TradeComps_ImpliedPrices['ebitda_SharePrice']),style={'display' : 'inline-block', 'margin-left' : '50px'}),
             html.P("P/E Share Price: "+str("%0.2f" %TradeComps_ImpliedPrices['netIncome_SharePrice']),style={'display' : 'inline-block', 'margin-left' : '50px'}),

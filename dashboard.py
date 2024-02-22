@@ -37,8 +37,13 @@ def create_dashboard():
     TradeComps_ImpliedPrices = eq.TradeComps(toComp, tickerData['cash'], tickerData['debt'], tickerData['shares'], tickerData['eps'], tickerData['ebitda'], tickerData['revenue'])
     DCF_ImpliedPrice = eq.DiscountedCashFlow(ticker, PerYGrowth,  tickerData['tickerCashFlow'], tickerData['cash'], tickerData['debt'], tickerData['marketCap'], tickerData['shares'])
     toCompDiv = []
+    x = 0
     for data in toCompData:
-        toCompDiv.append(html.P(str(data[0])+":   "+str(data[1]),style={'display' : 'inline-block','margin-left' : '50px'}))
-
+        if x > 0: 
+            toCompDiv.append(html.P(str(data[0])+":   "+str(data[1]),style={'display' : 'inline-block', 'margin-left' : '50px'}))
+        else:
+            toCompDiv.append(html.P(str(data[0])+":   "+str(data[1]),style={'display' : 'inline-block'}))
+            x+=1
+            
     return Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget,DCF_ImpliedPrice,PerYGrowth,
                 fig, toCompDiv, TradeComps_ImpliedPrices)
