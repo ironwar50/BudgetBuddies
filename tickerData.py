@@ -65,7 +65,7 @@ class Ticker:
         cfo = 0
         for i in range(4):                                                                                                      
             revnue += tickerIncome['Total Revenue'].iloc[i]
-            ebitda += tickerIncome['Total Revenue'].iloc[i]
+            ebitda += tickerIncome['EBITDA'].iloc[i]
             netIncome += tickerIncome['Net Income'].iloc[i] 
             cfo += tickerCashFlow['Cash Flow From Continuing Operating Activities'].iloc[i]
         self.revenue = revnue

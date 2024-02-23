@@ -74,10 +74,10 @@ def TradeComps(toComp, tickerData):
         elif tickData['revenue'] > 0: 
             AVG_rev_multi += tickData['enterpriseToRevenue']
             revNum+=1
-        if tickData['enterpriseToEbitda'] == 0:
+        if tickData['enterpriseToEbitda'] <= 0:
             AVG_EBITDA_multi += eq.ebitda_multiple(EV, tickData['ebitda'])
             ebitdaNum+=1
-        elif tickData['ebitda'] > 0: 
+        else: 
             AVG_EBITDA_multi += tickData['enterpriseToEbitda']
             ebitdaNum+=1
         if tickData['PE'] > 0: 
