@@ -7,13 +7,11 @@ import dash_bootstrap_components as dbc
 
 home_layout = html.Div(children=[html.H1(children="This is our Home page")])
 
-data_upload_layout = html.Div(
-    children=[html.H1(children="This is our upload page"),
-    pl.upload_data_layout()]
-)
+data_upload_layout = html.Div(children=[
+    pl.upload_data_layout()
+])
 
 dashboard_layout = html.Div(children=[
-    html.H1(children="This is our dashboard layout"),
     db.create_dashboard()
 ])
 
