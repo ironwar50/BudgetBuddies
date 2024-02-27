@@ -75,6 +75,10 @@ def upload_data_layout():
                 html.Label(className='menu-title', children="Enter 5 Additional Stock Ticker Symbols to Compare Against:"),
                 dcc.Input(id="ticker", type="text", className='space-between'),
             ]),
+            html.Div(className='menu-item', children=[
+                html.Label(className='menu-title', children="Enter the Expected Average Yearly Growth Rate (5 years)"),
+                dcc.Input(id="ticker", type="text", className='space-between'),
+            ]),
             dcc.Link(html.Button('Analyze', id='analyze-button', className='analyze-button'), href='/dashboard_layout', refresh=True),
             ]),
         ])
