@@ -72,6 +72,10 @@ def upload_data_layout():
                 dcc.Input(id="ticker", type="text", value="LSCC", className='ticker-input'),
             ]),
             html.Div(className='menu-item', children=[
+                html.Label(className='menu-title', children="Enter Per Year Growth:"),
+                dcc.Input(id="ticker", type="number", value="0.25", className='ticker-input', min=0, max=1, step=0.05),
+            ]),
+            html.Div(className='menu-item', children=[
                 html.Label(className='menu-title', children="Enter 5 Additional Stock Ticker Symbols to Compare Against:"),
                 dcc.Input(id="ticker", type="text", className='space-between'),
             ]),
