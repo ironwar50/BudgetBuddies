@@ -25,11 +25,12 @@ def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarg
                 html.P(avgAnalystTarget,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-            html.P("Sentiment Analysis",style={'display' : 'inline-block', 'margin-left' : '150px'}),
-            html.P(sentimentAnalysis,style={'float' : 'right','display' : 'inline-block'})
-        ]),html.Div([
             html.P("Annualized Log Rerturn",style={'display' : 'inline-block', 'margin-left' : '150px'}),
             html.P("%0.2f" %annualLogReturn,style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+            html.P("Sentiment Analysis",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P(sentimentAnalysis,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Br(),
         html.H2("Discounted Cash Flow",style={'display' : 'inline-block','margin-left' : '150px'}),
