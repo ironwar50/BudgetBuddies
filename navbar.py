@@ -12,7 +12,7 @@ data_upload_layout = html.Div(children=[
 ])
 
 dashboard_layout = html.Div(children=[
-    db.create_dashboard()
+    pl.create_dashboard(db.create_dashboard_data())
 ])
 
 def get_navbar():

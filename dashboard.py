@@ -1,6 +1,5 @@
 from dash import html
 import pandas as pd
-from PageLayouts import Dashboard 
 import datetime as dt
 import BudgetBuddies as eq
 import plotly.graph_objects as go
@@ -134,7 +133,7 @@ def generate_comparison_div(toCompData):
             x += 1
     return toCompDiv
 
-def create_dashboard():
+def create_dashboard_data():
     start, end = get_start_end_dates()
     tickerSymbol = 'LSCC'
     tickerData = get_ticker_data(tickerSymbol)
@@ -148,5 +147,17 @@ def create_dashboard():
     DCF_ImpliedPrice = get_dcf_implied_price(tickerData, 0.25)
     toCompDiv = generate_comparison_div(toCompData)
 
-    return Dashboard(FullName, tickerSymbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget, DCF_ImpliedPrice, 0.25,
-                     fig, toCompDiv, TradeComps_ImpliedPrices)
+    return {
+        'FullName': FullName,
+        'tickerSymbol': tickerSymbol,
+        'LastClose': LastClose,
+        'TrailingPE': TrailingPE,
+        'ForwardPE': ForwardPE,
+        'avgAnalystTarget': avgAnalystTarget,
+        'DCF_ImpliedPrice': DCF_ImpliedPrice,
+        'PerYGrowth': 0.25, 
+        'fig': fig,
+        'toCompDiv': toCompDiv,
+        'TradeComps_ImpliedPrices': TradeComps_ImpliedPrices
+    }
+
