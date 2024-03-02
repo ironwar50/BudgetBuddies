@@ -145,8 +145,30 @@ def getSentimentAnalysis(ticker: Ticker):
     return ticker.sentimentAnalysis()
 
 def annualLogReturn(df):
+    """Calculate log rate of return over three years
+
+    Args:
+        df (DataFrame): DataFrame containing stock data.
+
+    Returns:
+        float: three year log return average
+    """
     log_returns = np.log(df['Close'] / df['Close'].shift(1)).dropna().sum()*100
     return log_returns/3
+
+def ThirtyDayEMA(df):
+    """Calculate thirty day exponential moving average
+
+    Args:
+        df (DataFrame): DataFrame containing stock data.
+
+    Returns:
+        float: EMA
+    """
+    thiryDay = df['Close'].tail(30)
+    thiryDay = thiryDay.iloc[::-1]
+    thiryDayAVG = thiryDay.ewm(span=30, adjust=False).mean().sum()/30
+    return thiryDayAVG
 
 def create_dashboard():
     start, end = get_start_end_dates()
@@ -160,10 +182,11 @@ def create_dashboard():
     fig = create_candlestick_figure(df)
     sentimentAnalysis = getSentimentAnalysis(ticker)
     aLogReturn = annualLogReturn(df)
+    movingAVG = ThirtyDayEMA(df)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)
     TradeComps_ImpliedPrices = get_comps_implied_prices(toComp, tickerData)
     DCF_ImpliedPrice = get_dcf_implied_price(tickerData, 0.25)
     toCompDiv = generate_comparison_div(toCompData)
 
     return Dashboard(FullName, tickerSymbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget, DCF_ImpliedPrice, 0.25,
-                     fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis, aLogReturn)
+                     fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis, aLogReturn, movingAVG)

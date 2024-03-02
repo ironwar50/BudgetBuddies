@@ -2,7 +2,7 @@ from dash import dcc, html
 import pandas as pd 
 
 def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget,DCF_ImpliedPrice,PerYGrowth,
-              fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis, annualLogReturn):
+              fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis, annualLogReturn, movingAVG):
     return html.Div([
     html.Div([
         html.Div(
@@ -25,11 +25,15 @@ def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarg
                 html.P(avgAnalystTarget,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-            html.P("Annualized Log Rerturn",style={'display' : 'inline-block', 'margin-left' : '150px'}),
-            html.P("%0.2f" %annualLogReturn,style={'float' : 'right','display' : 'inline-block'})
+            html.P("Thiry Day EMA",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P("%0.2f"%movingAVG,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-            html.P("Sentiment Analysis",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P("Annualized Log Rerturn",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P(str("%0.2f"%annualLogReturn)+"%",style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+            html.P("News Sentiment Analysis",style={'display' : 'inline-block', 'margin-left' : '150px'}),
             html.P(sentimentAnalysis,style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Br(),
