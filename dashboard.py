@@ -17,7 +17,7 @@ def get_start_end_dates():
     start = end - dt.timedelta(days=365 * 3)
     return start, end
 
-def get_ticker_data(symbol):
+def get_ticker_data(ticker: Ticker):
     """Retrieve data for a given stock ticker symbol.
 
     Args:
@@ -26,7 +26,6 @@ def get_ticker_data(symbol):
     Returns:
         Object: Data associated with the stock ticker.
     """
-    ticker = Ticker(symbol)
     ticker.pullData()
     return ticker.getData()
 
@@ -134,19 +133,33 @@ def generate_comparison_div(toCompData):
             x += 1
     return toCompDiv
 
+def getSentimentAnalysis(ticker: Ticker):
+    """Generate output from sentiment analysis on ticker.
+
+    Args:
+        tickerData (Object): Data for a stock ticker
+
+    Returns:
+        string: Bullish, Neutral, Bearish.
+    """
+    return ticker.sentimentAnalysis()
+
+
 def create_dashboard():
     start, end = get_start_end_dates()
     tickerSymbol = 'LSCC'
-    tickerData = get_ticker_data(tickerSymbol)
+    ticker = Ticker(tickerSymbol)
+    tickerData = get_ticker_data(ticker)
     toComp = [Ticker('MTSI'), Ticker('POWI'),
               Ticker('QRVO'), Ticker('RMBS'), Ticker('SLAB')]
     toCompData = get_comparison_data(toComp)
     df = get_dataframe(tickerData, start, end)
     fig = create_candlestick_figure(df)
+    sentimentAnalysis = getSentimentAnalysis(ticker)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)
     TradeComps_ImpliedPrices = get_comps_implied_prices(toComp, tickerData)
     DCF_ImpliedPrice = get_dcf_implied_price(tickerData, 0.25)
     toCompDiv = generate_comparison_div(toCompData)
 
     return Dashboard(FullName, tickerSymbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget, DCF_ImpliedPrice, 0.25,
-                     fig, toCompDiv, TradeComps_ImpliedPrices)
+                     fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis)

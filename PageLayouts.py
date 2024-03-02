@@ -2,7 +2,7 @@ from dash import dcc, html
 import pandas as pd 
 
 def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget,DCF_ImpliedPrice,PerYGrowth,
-              fig, toCompDiv, TradeComps_ImpliedPrices):
+              fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis):
     return html.Div([
     html.Div([
         html.Div(
@@ -24,6 +24,10 @@ def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarg
                 html.P("Analyst Target",style={'display' : 'inline-block','margin-left' : '150px'}),
                 html.P(avgAnalystTarget,style={'float' : 'right','display' : 'inline-block'})
         ]),
+        html.Div([
+            html.P("Sentiment Analysis",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P(sentimentAnalysis,style={'float' : 'right','display' : 'inline-block'})
+        ]),
         html.Br(),
         html.H2("Discounted Cash Flow",style={'display' : 'inline-block','margin-left' : '150px'}),
         html.Div([
@@ -42,6 +46,7 @@ def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarg
             html.P("Implied Share Price",style={'display' : 'inline-block', 'margin-left' : '150px'}),
             html.P("%0.2f" %DCF_ImpliedPrice['ImpliedSharePrice'],style={'float' : 'right','display' : 'inline-block'})
         ])
+        
 
     ],style={'textAlign' : 'top' ,'width' : '45%', 'display' : 'inline-block', 'margin-left' : '50px'}),
     html.Div([
