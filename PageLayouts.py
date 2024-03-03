@@ -1,9 +1,9 @@
-from dash import dcc, html
+import dash
+from dash import dcc, html, Input, Output, State, callback
 import pandas as pd 
 
-def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget,DCF_ImpliedPrice,PerYGrowth,
-              fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis, annualLogReturn, movingAVG, monteCarloFig, monteCarloMean):
-    return html.Div([
+def create_dashboard(dashboard_data):
+     return html.Div([
     html.Div([
         html.Div(
             html.H1(str(FullName) + " (" + str(symbol) + ")", style={'text-align' : 'right', 'margin-right' : '15px'}), 
@@ -72,10 +72,11 @@ def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarg
     ],style={ 'width' : '45%', 'display' : 'inline-block', 'float' : 'right', 'margin-right' : '50px'}),
 ])
 
+
 def upload_data_layout():
     """
     This creates a page layout allowing users to enter their specific stock ticker,
-    5 addtional stock tickers to compare against and an "Analyze" button which will
+    5 additional stock tickers to compare against and an "Analyze" button which will
     send the user to the dashboard to visualize the data.
     """
     return html.Div([
@@ -86,17 +87,42 @@ def upload_data_layout():
         html.Div(className='wrapper', children=[
             html.Div(className='menu-item', children=[
                 html.Label(className='menu-title', children="Enter Stock Ticker Symbol:"),
-                dcc.Input(id="ticker", type="text", value="LSCC", className='ticker-input'),
+                dcc.Input(id="ticker-input", type="text", placeholder="Ticker Symbol", className='ticker-input'),
             ]),
             html.Div(className='menu-item', children=[
-                html.Label(className='menu-title', children="Enter 5 Additional Stock Ticker Symbols to Compare Against:"),
-                dcc.Input(id="ticker", type="text", className='space-between'),
+                html.Label(className='menu-title', children="Enter Per Year Growth:"),
+                dcc.Input(id="per-year-growth-input", type="number", placeholder=0.25, className='ticker-input', min=0, max=1, step=0.05),
             ]),
             html.Div(className='menu-item', children=[
-                html.Label(className='menu-title', children="Enter the Expected Average Yearly Growth Rate (5 years)"),
-                dcc.Input(id="ticker", type="text", className='space-between'),
+                html.Label(className='menu-title', children="Enter Additional Stock Ticker Symbols to Compare Against (Seperate By Comma):"),
+                dcc.Input(id="compare-tickers-input", type="text", placeholder="NVDA,MSFT,AAPL" ,className='space-between'),
             ]),
-            dcc.Link(html.Button('Analyze', id='analyze-button', className='analyze-button'), href='/dashboard_layout', refresh=True),
-            ]),
+            html.Button('Analyze', id='analyze-button', className='analyze-button'),
+            html.Div(id='hidden-div', style={'display': 'none'})
         ])
+    ])
 
+
+@callback(
+    Output('hidden-div', 'children'),
+    [Input('analyze-button', 'n_clicks')],
+    [State('ticker-input', 'value'),
+     State('per-year-growth-input', 'value'),
+     State('compare-tickers-input', 'value')],
+     prevent_initial_call=True,
+)
+def handle_analyze_button(n_clicks, ticker_input, per_year_growth_input, compare_tickers_input):
+    if n_clicks is None:
+        return dash.no_update
+
+    df = pd.DataFrame({
+        'Ticker': [ticker_input],
+        'PerYearGrowth': [per_year_growth_input],
+        'CompareTickers': [compare_tickers_input]
+    })
+
+    # Save DataFrame to a CSV file
+    csv_filename = 'user_input.csv'
+    df.to_csv(csv_filename, index=False)
+
+    return dcc.Location('Go to Dashboard', href='/dashboard_layout', refresh=True)
