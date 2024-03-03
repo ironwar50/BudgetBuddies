@@ -216,3 +216,4 @@ def create_dashboard_data(df):
         'monteCarloFig': monteCarlo['fig'],
         'monteCarloMean': monteCarlo['mean']
     }
+

@@ -1,14 +1,16 @@
 import yfinance as yf
+import pandas as pd
+import requests
 
 def checkData(tickerData):
-        for key in tickerData.keys():
-            if str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A' and not key == 'ticker':
-                tickerData[key] = 0
+                for key in tickerData.keys():
+                    if str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A' and not key == 'ticker':
+                        tickerData[key] = 0
 
 class Ticker:
     def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, debt=0, cash=0, shares=0, 
                  CFO=0, TaxRate=0, PE = 0, marketCap = 0, enterpriseValue = 0, 
-                 enterpriseToRevenue = 0, enterpriseToEbitda = 0, eps = 0, beta = 0):
+                 enterpriseToRevenue = 0, enterpriseToEbitda = 0, eps = 0, beta = 0, symbol = ''):
         tickerInfo = yf.Ticker(tickerSymbol.upper()).info
         self.ticker = yf.Ticker(tickerSymbol.upper())
         self.revenue = revenue
@@ -52,6 +54,30 @@ class Ticker:
         else:
             self.beta = beta
     
+    def sentimentAnalysis(self):
+        key = '2ULL03GV6Y8DIGZV'
+        symbol = self.ticker.info['symbol'].upper().strip()
+        url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, key)
+        r = requests.get(url)
+        data = r.json()
+        sentimentTotal = 0
+        for feed in data['feed']:
+            for sentiment in feed['ticker_sentiment']:
+                if sentiment['ticker'] == symbol:
+                    if sentiment['ticker_sentiment_label'] == "Bearish":
+                        sentimentTotal -= 2
+                    elif sentiment['ticker_sentiment_label'] == 'Somewhat-Bearish':
+                        sentimentTotal -= 1
+                    elif sentiment['ticker_sentiment_label'] == 'Somewhat-Bullish':
+                        sentimentTotal += 1
+                    elif sentiment['ticker_sentiment_label'] == 'Bullish':
+                        sentimentTotal += 2
+        if(sentimentTotal > 5):
+            return 'Bullish'
+        elif(sentimentTotal < -5):
+            return 'Bearish'
+        return 'Neutral'
+        
     def pullData(self):
         ticker = self.ticker
         tickerIncome = ticker.quarterly_income_stmt.transpose() 
