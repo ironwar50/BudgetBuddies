@@ -196,7 +196,7 @@ def create_dashboard_data(df):
     sentimentAnalysis = getSentimentAnalysis(ticker)
     aLogReturn = annualLogReturn(df)
     movingAVG = ThirtyDayEMA(df)
-    monteCarlo = getMonteCarlo(tickerData, .25)
+    monteCarlo = getMonteCarlo(tickerData, perYearGrowth)
 
     return {
         'FullName': FullName,
