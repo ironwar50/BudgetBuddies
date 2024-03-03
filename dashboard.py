@@ -3,6 +3,9 @@ import datetime as dt
 import BudgetBuddies as eq
 import plotly.graph_objects as go
 from tickerData import Ticker
+import numpy as np
+import MonteCarlo as MC
+import plotly.express as px
 
 
 def get_start_end_dates():
@@ -15,7 +18,7 @@ def get_start_end_dates():
     start = end - dt.timedelta(days=365 * 3)
     return start, end
 
-def get_ticker_data(symbol):
+def get_ticker_data(ticker):
     """Retrieve data for a given stock ticker symbol.
 
     Args:
@@ -24,7 +27,6 @@ def get_ticker_data(symbol):
     Returns:
         Object: Data associated with the stock ticker.
     """
-    ticker = Ticker(symbol)
     ticker.pullData()
     return ticker.getData()
 
@@ -132,13 +134,57 @@ def generate_comparison_div(toCompData):
             x += 1
     return toCompDiv
 
+def getSentimentAnalysis(ticker: Ticker):
+    """Generate output from sentiment analysis on ticker.
+
+    Args:
+        tickerData (Object): Data for a stock ticker
+
+    Returns:
+        string: Bullish, Neutral, Bearish.
+    """
+    return ticker.sentimentAnalysis()
+
+def annualLogReturn(df):
+    """Calculate log rate of return over three years
+
+    Args:
+        df (DataFrame): DataFrame containing stock data.
+
+    Returns:
+        float: three year log return average
+    """
+    log_returns = np.log(df['Close'] / df['Close'].shift(1)).dropna().sum()*100
+    return log_returns/3
+
+def ThirtyDayEMA(df):
+    """Calculate thirty day exponential moving average
+
+    Args:
+        df (DataFrame): DataFrame containing stock data.
+
+    Returns:
+        float: EMA
+    """
+    thiryDay = df['Close'].tail(30)
+    thiryDay = thiryDay.iloc[::-1]
+    thiryDayAVG = thiryDay.ewm(span=30, adjust=False).mean().sum()/30
+    return thiryDayAVG
+
+def getMonteCarlo(tickerData, PerYearGrowth):
+    distribution =  MC.MonteCarlo(tickerData, PerYearGrowth)
+    fig = px.histogram(distribution, nbins=65, title='Monte Carlo Simulation of DCF')
+    mean = distribution.mean()
+    return {'fig': fig, 'mean': mean}
+
 def create_dashboard_data(df):
     tickerSymbol = df['Ticker'].iloc[0]
     perYearGrowth = df['PerYearGrowth'].iloc[0]
     compareTickers = df['CompareTickers'].iloc[0]
 
+    ticker = Ticker(tickerSymbol)
     start, end = get_start_end_dates()
-    tickerData = get_ticker_data(tickerSymbol)
+    tickerData = get_ticker_data(ticker)
     compareTickersList = [Ticker(symbol) for symbol in compareTickers.split(',')]
     toCompData = get_comparison_data(compareTickersList)
     df = get_dataframe(tickerData, start, end)
@@ -147,6 +193,10 @@ def create_dashboard_data(df):
     TradeComps_ImpliedPrices = get_comps_implied_prices(compareTickersList, tickerData)
     DCF_ImpliedPrice = get_dcf_implied_price(tickerData, perYearGrowth)
     toCompDiv = generate_comparison_div(toCompData)
+    sentimentAnalysis = getSentimentAnalysis(ticker)
+    aLogReturn = annualLogReturn(df)
+    movingAVG = ThirtyDayEMA(df)
+    monteCarlo = getMonteCarlo(tickerData, .25)
 
     return {
         'FullName': FullName,
@@ -159,5 +209,11 @@ def create_dashboard_data(df):
         'PerYGrowth': perYearGrowth,
         'fig': fig,
         'toCompDiv': toCompDiv,
-        'TradeComps_ImpliedPrices': TradeComps_ImpliedPrices
+        'TradeComps_ImpliedPrices': TradeComps_ImpliedPrices,
+        'sentimentAnalysis': sentimentAnalysis,
+        'aLogReturn': aLogReturn,
+        'movingAVG': movingAVG,
+        'monteCarloFig': monteCarlo['fig'],
+        'monteCarloMean': monteCarlo['mean']
     }
+

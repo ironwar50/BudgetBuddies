@@ -3,54 +3,74 @@ from dash import dcc, html, Input, Output, State, callback
 import pandas as pd 
 
 def create_dashboard(dashboard_data):
-    return html.Div([
+     return html.Div([
+    html.Div([
+        html.Div(
+            html.H1(str(dashboard_data['FullName']) + " (" + str(dashboard_data['tickerSymbol']) + ")", style={'text-align' : 'right', 'margin-right' : '15px'}), 
+        ),
         html.Div([
-            html.Div(html.H1(str(dashboard_data['FullName']) + " (" + str(dashboard_data['tickerSymbol']) + ")", style={'text-align': 'right', 'margin-right': '15px'})),
-            html.Div([
-                html.P("Last Close", style={'display': 'inline-block', 'margin-left': '150px'}),
-                html.P(dashboard_data['LastClose'], style={'float': 'right', 'display': 'inline-block'})
-            ]),
-            html.Div([
-                html.P("P/E", style={'display': 'inline-block', 'margin-left': '150px'}),
-                html.P("%0.2f" % dashboard_data['TrailingPE'], style={'float': 'right', 'display': 'inline-block'})
-            ]),
-            html.Div([
-                html.P("Forward P/E", style={'display': 'inline-block', 'margin-left': '150px'}),
-                html.P("%0.2f" % dashboard_data['ForwardPE'], style={'float': 'right', 'display': 'inline-block'})
-            ]),
-            html.Div([
-                html.P("Analyst Target", style={'display': 'inline-block', 'margin-left': '150px'}),
-                html.P(dashboard_data['avgAnalystTarget'], style={'float': 'right', 'display': 'inline-block'})
-            ]),
-            html.Br(),
-            html.H2("Discounted Cash Flow", style={'display': 'inline-block', 'margin-left': '150px'}),
-            html.Div([
-                html.P("Current Cash Flow", style={'display': 'inline-block', 'margin-left': '150px'}),
-                html.P(dashboard_data['DCF_ImpliedPrice']['FreeCashFlow'], style={'float': 'right', 'display': 'inline-block'})
-            ]),
-            html.Div([
-                html.P("Average Yearly Growth", style={'display': 'inline-block', 'margin-left': '150px'}),
-                html.P(dashboard_data['PerYGrowth'], style={'float': 'right', 'display': 'inline-block'})
-            ]),
-            html.Div([
-                html.P("Year Five Cash Flow", style={'display': 'inline-block', 'margin-left': '150px'}),
-                html.P("%0.2f" % dashboard_data['DCF_ImpliedPrice']['LastYearCashFlow'], style={'float': 'right', 'display': 'inline-block'})
-            ]),
-            html.Div([
-                html.P("Implied Share Price", style={'display': 'inline-block', 'margin-left': '150px'}),
-                html.P("%0.2f" % dashboard_data['DCF_ImpliedPrice']['ImpliedSharePrice'], style={'float': 'right', 'display': 'inline-block'})
-            ])
-        ], style={'textAlign': 'top', 'width': '45%', 'display': 'inline-block', 'margin-left': '50px'}),
+                html.P("Last Close",style={'display' : 'inline-block','margin-left' : '150px'}),
+                html.P(dashboard_data['LastClose'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
         html.Div([
-            dcc.Graph(figure=dashboard_data['fig']),
-            html.Div([
-                html.Div(dashboard_data['toCompDiv']),
-                html.P("Revenue Share Price: " + str("%0.2f" % dashboard_data['TradeComps_ImpliedPrices']['revenue_SharePrice']), style={'display': 'inline-block'}),
-                html.P("EBITDA Share Price: " + str("%0.2f" % dashboard_data['TradeComps_ImpliedPrices']['ebitda_SharePrice']), style={'display': 'inline-block', 'margin-left': '50px'}),
-                html.P("P/E Share Price: " + str("%0.2f" % dashboard_data['TradeComps_ImpliedPrices']['netIncome_SharePrice']), style={'display': 'inline-block', 'margin-left': '50px'}),
-            ], style={'textAlign': 'center'})
-        ], style={'width': '45%', 'display': 'inline-block', 'float': 'right', 'margin-right': '50px'}),
-    ])
+                html.P("P/E",style={'display' : 'inline-block','margin-left' : '150px'}),
+                html.P("%0.2f" %dashboard_data['TrailingPE'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+                html.P("Forward P/E",style={'display' : 'inline-block','margin-left' : '150px'}),
+                html.P("%0.2f" %dashboard_data['ForwardPE'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+                html.P("Analyst Target",style={'display' : 'inline-block','margin-left' : '150px'}),
+                html.P(dashboard_data['avgAnalystTarget'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+            html.P("Thiry Day EMA",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P("%0.2f"%dashboard_data['movingAVG'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+            html.P("Annualized Log Rerturn",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P(str("%0.2f"%dashboard_data['aLogReturn'])+"%",style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+            html.P("News Sentiment Analysis",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P(dashboard_data['sentimentAnalysis'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Br(),
+        html.H2("Discounted Cash Flow",style={'display' : 'inline-block','margin-left' : '150px'}),
+        html.Div([
+            html.P("Current Cash Flow",style={'display' : 'inline-block','margin-left' : '150px'}),
+            html.P(dashboard_data['DCF_ImpliedPrice']['FreeCashFlow'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+            html.P("Average Yearly Growth",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P(dashboard_data['PerYGrowth'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+            html.P("Year Five Cash Flow",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P("%0.2f" %dashboard_data['DCF_ImpliedPrice']['LastYearCashFlow'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
+            html.P("Implied Share Price",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P("%0.2f" %dashboard_data['DCF_ImpliedPrice']['ImpliedSharePrice'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Br(),
+        html.H2("Trading Comps",style={'margin-left' : '150px'}),
+        html.Div([
+            html.Div(dashboard_data['toCompDiv']),
+            html.P("Revenue Share Price: "+str("%0.2f" %dashboard_data['TradeComps_ImpliedPrices']['revenue_SharePrice']),style={'display' : 'inline-block'}),
+            html.P("EBITDA Share Price: "+str("%0.2f" %dashboard_data['TradeComps_ImpliedPrices']['ebitda_SharePrice']),style={'display' : 'inline-block', 'margin-left' : '50px'}),
+            html.P("P/E Share Price: "+str("%0.2f" %dashboard_data['TradeComps_ImpliedPrices']['netIncome_SharePrice']),style={'display' : 'inline-block', 'margin-left' : '50px'}),
+        ],style={'textAlign' : 'center'})
+        
+
+    ],style={'textAlign' : 'top' ,'width' : '45%', 'display' : 'inline-block', 'margin-left' : '50px'}),
+    html.Div([
+        dcc.Graph(figure=dashboard_data['fig']),
+        dcc.Graph(figure=dashboard_data['monteCarloFig']),
+         html.P("Mean: "+str("%0.2f" %dashboard_data['monteCarloMean']),style={'textAlign' : 'center'})
+    ],style={ 'width' : '45%', 'display' : 'inline-block', 'float' : 'right', 'margin-right' : '50px'}),
+])
 
 
 def upload_data_layout():
@@ -75,7 +95,7 @@ def upload_data_layout():
             ]),
             html.Div(className='menu-item', children=[
                 html.Label(className='menu-title', children="Enter Additional Stock Ticker Symbols to Compare Against (Seperate By Comma):"),
-                dcc.Input(id="compare-tickers-input", type="text", placeholder="NVDA,MSFT,AAPL" ,className='space-between'),
+                dcc.Input(id="compare-tickers-input", type="text", placeholder="MTSI,POWI,QRVO,RMBS,SLAB" ,className='space-between'),
             ]),
             html.Button('Analyze', id='analyze-button', className='analyze-button'),
             html.Div(id='hidden-div', style={'display': 'none'})
