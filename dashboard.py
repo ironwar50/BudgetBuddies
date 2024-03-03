@@ -1,5 +1,4 @@
 from dash import html
-import pandas as pd
 import datetime as dt
 import BudgetBuddies as eq
 import plotly.graph_objects as go
@@ -133,18 +132,20 @@ def generate_comparison_div(toCompData):
             x += 1
     return toCompDiv
 
-def create_dashboard_data():
+def create_dashboard_data(df):
+    tickerSymbol = df['Ticker'].iloc[0]
+    perYearGrowth = df['PerYearGrowth'].iloc[0]
+    compareTickers = df['CompareTickers'].iloc[0]
+
     start, end = get_start_end_dates()
-    tickerSymbol = 'LSCC'
     tickerData = get_ticker_data(tickerSymbol)
-    toComp = [Ticker('MTSI'), Ticker('POWI'),
-              Ticker('QRVO'), Ticker('RMBS'), Ticker('SLAB')]
-    toCompData = get_comparison_data(toComp)
+    compareTickersList = [Ticker(symbol) for symbol in compareTickers.split(',')]
+    toCompData = get_comparison_data(compareTickersList)
     df = get_dataframe(tickerData, start, end)
     fig = create_candlestick_figure(df)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)
-    TradeComps_ImpliedPrices = get_comps_implied_prices(toComp, tickerData)
-    DCF_ImpliedPrice = get_dcf_implied_price(tickerData, 0.25)
+    TradeComps_ImpliedPrices = get_comps_implied_prices(compareTickersList, tickerData)
+    DCF_ImpliedPrice = get_dcf_implied_price(tickerData, perYearGrowth)
     toCompDiv = generate_comparison_div(toCompData)
 
     return {
@@ -155,9 +156,8 @@ def create_dashboard_data():
         'ForwardPE': ForwardPE,
         'avgAnalystTarget': avgAnalystTarget,
         'DCF_ImpliedPrice': DCF_ImpliedPrice,
-        'PerYGrowth': 0.25, 
+        'PerYGrowth': perYearGrowth,
         'fig': fig,
         'toCompDiv': toCompDiv,
         'TradeComps_ImpliedPrices': TradeComps_ImpliedPrices
     }
-
