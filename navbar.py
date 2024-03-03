@@ -1,9 +1,11 @@
-from dash import Input, Output, callback
-from dash import html
+from dash import Input, Output, callback, html
 import PageLayouts as pl
 import dashboard as db
+import pandas as pd
 
 import dash_bootstrap_components as dbc
+
+csv_file = 'user_input.csv'
 
 home_layout = html.Div(children=[html.H1(children="This is our Home page")])
 
@@ -11,9 +13,17 @@ data_upload_layout = html.Div(children=[
     pl.upload_data_layout()
 ])
 
-dashboard_layout = html.Div(children=[
-    db.create_dashboard()
-])
+
+def get_dashboard_layout():
+    """
+    Read saved data from the csv file and use that to 
+    retrieve the data that will be used to create the dashboard.
+
+    Return the dashboard that will be created.
+    """
+    df = db.create_dashboard_data(pd.read_csv(csv_file))
+    return pl.create_dashboard(df)
+
 
 def get_navbar():
     """
@@ -32,6 +42,7 @@ def get_navbar():
         className="mb-2",
     )
 
+
 @callback(Output("page-content", "children"), Input("url", "pathname"))
 def display_page(pathname):
     """
@@ -49,7 +60,7 @@ def display_page(pathname):
     elif pathname == "/upload_layout":
         return data_upload_layout
     elif pathname == "/dashboard_layout":
-        return dashboard_layout
+        return get_dashboard_layout()
     else:
         return html.Div(children=[
             html.H1("404: Not found", className="text-danger"),
