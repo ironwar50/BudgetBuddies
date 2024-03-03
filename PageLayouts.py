@@ -2,7 +2,7 @@ from dash import dcc, html
 import pandas as pd 
 
 def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget,DCF_ImpliedPrice,PerYGrowth,
-              fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis, annualLogReturn, movingAVG):
+              fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis, annualLogReturn, movingAVG, monteCarloFig, monteCarloMean):
     return html.Div([
     html.Div([
         html.Div(
@@ -53,18 +53,22 @@ def Dashboard(FullName, symbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarg
         html.Div([
             html.P("Implied Share Price",style={'display' : 'inline-block', 'margin-left' : '150px'}),
             html.P("%0.2f" %DCF_ImpliedPrice['ImpliedSharePrice'],style={'float' : 'right','display' : 'inline-block'})
-        ])
-        
-
-    ],style={'textAlign' : 'top' ,'width' : '45%', 'display' : 'inline-block', 'margin-left' : '50px'}),
-    html.Div([
-        dcc.Graph(figure=fig),
+        ]),
+        html.Br(),
+        html.H2("Trading Comps",style={'margin-left' : '150px'}),
         html.Div([
             html.Div(toCompDiv),
             html.P("Revenue Share Price: "+str("%0.2f" %TradeComps_ImpliedPrices['revenue_SharePrice']),style={'display' : 'inline-block'}),
             html.P("EBITDA Share Price: "+str("%0.2f" %TradeComps_ImpliedPrices['ebitda_SharePrice']),style={'display' : 'inline-block', 'margin-left' : '50px'}),
             html.P("P/E Share Price: "+str("%0.2f" %TradeComps_ImpliedPrices['netIncome_SharePrice']),style={'display' : 'inline-block', 'margin-left' : '50px'}),
         ],style={'textAlign' : 'center'})
+        
+
+    ],style={'textAlign' : 'top' ,'width' : '45%', 'display' : 'inline-block', 'margin-left' : '50px'}),
+    html.Div([
+        dcc.Graph(figure=fig),
+        dcc.Graph(figure=monteCarloFig),
+         html.P("Mean: "+str("%0.2f" %monteCarloMean),style={'textAlign' : 'center'})
     ],style={ 'width' : '45%', 'display' : 'inline-block', 'float' : 'right', 'margin-right' : '50px'}),
 ])
 

@@ -6,6 +6,8 @@ import BudgetBuddies as eq
 import plotly.graph_objects as go
 from tickerData import Ticker
 import numpy as np
+import MonteCarlo as MC
+import plotly.express as px
 
 def get_start_end_dates():
     """Get the start and end dates for a date range.
@@ -170,6 +172,12 @@ def ThirtyDayEMA(df):
     thiryDayAVG = thiryDay.ewm(span=30, adjust=False).mean().sum()/30
     return thiryDayAVG
 
+def getMonteCarlo(tickerData, PerYearGrowth):
+    distribution =  MC.MonteCarlo(tickerData, PerYearGrowth)
+    fig = px.histogram(distribution, nbins=65)
+    mean = distribution.mean()
+    return {'fig': fig, 'mean': mean}
+
 def create_dashboard():
     start, end = get_start_end_dates()
     tickerSymbol = 'LSCC'
@@ -183,10 +191,11 @@ def create_dashboard():
     sentimentAnalysis = getSentimentAnalysis(ticker)
     aLogReturn = annualLogReturn(df)
     movingAVG = ThirtyDayEMA(df)
+    monteCarlo = getMonteCarlo(tickerData, .25)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)
     TradeComps_ImpliedPrices = get_comps_implied_prices(toComp, tickerData)
     DCF_ImpliedPrice = get_dcf_implied_price(tickerData, 0.25)
     toCompDiv = generate_comparison_div(toCompData)
 
     return Dashboard(FullName, tickerSymbol, LastClose, TrailingPE, ForwardPE, avgAnalystTarget, DCF_ImpliedPrice, 0.25,
-                     fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis, aLogReturn, movingAVG)
+                     fig, toCompDiv, TradeComps_ImpliedPrices, sentimentAnalysis, aLogReturn, movingAVG, monteCarlo['fig'], monteCarlo['mean'])
