@@ -174,7 +174,7 @@ def ThirtyDayEMA(df):
 
 def getMonteCarlo(tickerData, PerYearGrowth):
     distribution =  MC.MonteCarlo(tickerData, PerYearGrowth)
-    fig = px.histogram(distribution, nbins=65)
+    fig = px.histogram(distribution, nbins=65, title='Monte Carlo Simulation of DCF')
     mean = distribution.mean()
     return {'fig': fig, 'mean': mean}
 
