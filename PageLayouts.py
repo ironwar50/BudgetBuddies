@@ -95,7 +95,7 @@ def upload_data_layout():
             ]),
             html.Div(className='menu-item', children=[
                 html.Label(className='menu-title', children="Enter Additional Stock Ticker Symbols to Compare Against (Seperate By Comma):"),
-                dcc.Input(id="compare-tickers-input", type="text", placeholder="NVDA,MSFT,AAPL" ,className='space-between'),
+                dcc.Input(id="compare-tickers-input", type="text", placeholder="MTSI,POWI,QRVO,RMBS,SLAB" ,className='space-between'),
             ]),
             html.Button('Analyze', id='analyze-button', className='analyze-button'),
             html.Div(id='hidden-div', style={'display': 'none'})
