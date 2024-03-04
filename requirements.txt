@@ -4,3 +4,6 @@ fredapi==0.5.1
 pandas==2.2.0
 plotly==5.19.0
 yfinance==0.2.36
+openturns==1.22
+numpy==1.26.3
+scipy==1.12.0

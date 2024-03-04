@@ -75,9 +75,8 @@ def WACC(EquityPercent,EquityCost,DebtPercent,CostofDebt,TaxRate):
     return df_generated_sample
 
 def presentValueSum(presentValue, PerYGrowth, WCD):
-    #presentValue = ot.Normal(presentValue, presentValue*.2)
-    PerYGrowth = ot.Distribution(ot.SciPyDistribution(scipy.stats.skewnorm(.99, loc=PerYGrowth, scale=PerYGrowth*.2)))
-    #PerYGrowth = ot.Normal(PerYGrowth, PerYGrowth*.2)
+    #PerYGrowth = ot.Distribution(ot.SciPyDistribution(scipy.stats.skewnorm(.99, loc=PerYGrowth, scale=PerYGrowth*.2)))
+    PerYGrowth = ot.Normal(PerYGrowth, PerYGrowth*.2)
     variable_dist = [PerYGrowth]
     variable_names = ['PerYGrowth']
 
@@ -209,11 +208,11 @@ def MonteCarlo(tickerData,PerYGrowth):
     return df_filtered
 
 def main():
-    tickerSymbol = 'LSCC'
+    tickerSymbol = 'NVDA'
     ticker = Ticker(tickerSymbol)
     ticker.pullData()
     tickerData = ticker.getData()
-    PerYGrowth = .25
+    PerYGrowth = .65
     monteCarlo = MonteCarlo(tickerData, PerYGrowth)
     fig = px.histogram(monteCarlo, nbins=65)
     fig.show()
