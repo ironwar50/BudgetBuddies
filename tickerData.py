@@ -3,9 +3,9 @@ import pandas as pd
 import requests
 
 def checkData(tickerData):
-                for key in tickerData.keys():
-                    if str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A' and not key == 'ticker':
-                        tickerData[key] = 0
+    for key in tickerData.keys():
+        if str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A' and not key == 'ticker':
+            tickerData[key] = 0
 
 class Ticker:
     def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, debt=0, cash=0, shares=0, 

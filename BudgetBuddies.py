@@ -6,50 +6,6 @@ fred = Fred(api_key='a02d5cbed56418e2d72837659e22b8ca')
 ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
 
 '''
-Checks for occurences of missing data and sets it to zero
-'''
-def checkData(tickerData):
-    for key in tickerData.keys():
-        if str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A':
-            tickerData[key] = 0
-    return tickerData
-
-'''
-This function pulls all necessary data that is needed for calculations with a given ticker.
-Returns a dictionary of with the data. 
-'''
-'''def pullTickerData(ticker):
-    tickerIncome = ticker.quarterly_income_stmt.transpose() 
-    tickerBalance = ticker.quarterly_balance_sheet.transpose()                                                              
-    tickerCashFlow = ticker.quarterly_cash_flow.transpose()
-    tickerData = {}
-    tickerData['makerCap'] = ticker.info['marketCap']
-    tickerData['revenue'] = 0
-    tickerData['ebitda'] = 0
-    tickerData['netIncome'] = 0                                                                                                 
-    if 'totalCash' in ticker.info.keys():
-        tickerData['cash'] = ticker.info['totalCash']
-    elif "Total Debt" in tickerBalance.keys():
-        tickerData['cash'] = tickerBalance['Cash Cash Equivalents And Short Term Investments']
-    else: 
-        tickerData['debt'] = 0
-    if 'totalDebt' in ticker.info.keys():
-        tickerData['debt'] = ticker.info['totalDebt']
-    elif "Total Debt" in tickerBalance.keys():
-        tickerData['debt'] = tickerBalance['Total Debt']
-    else: 
-        tickerData['debt'] = 0
-    tickerData['shares'] = ticker.info['sharesOutstanding'] 
-    tickerData['eps'] = ticker.info['trailingEps'] 
-    for i in range(4):                                                                                                      
-        tickerData['revenue'] += tickerIncome['Total Revenue'].iloc[i]
-        tickerData['ebitda'] += tickerIncome['Total Revenue'].iloc[i]
-        tickerData['netIncome'] += tickerIncome['Net Income'].iloc[i]
-    tickerData = checkData(tickerData)                                                                                
-    return {"tickerCashFlow" : tickerCashFlow, "marketCap" :  tickerData['makerCap'], "revenue" : tickerData['revenue'], "ebitda" : tickerData['ebitda'], 
-            "netIncome" : tickerData['netIncome'], "eps" : tickerData['eps'], "cash" : tickerData['cash'], "debt" : tickerData['debt'], "shares" : tickerData['shares']} 
-   '''
-'''
 Performs the Trade Comps calculation. 
 Takes in the tickers being compared to along with the cash, debt, number of shares, and EPS of the target ticker.
 Returns a dictionary with the three calculated shares prices on revenue, EBITDA, and net income/Price to Earnings
