@@ -84,11 +84,21 @@ def DiscountedCashFlow(tickerData,PerYGrowth):
 
 def main():
     print("Enter the ticker you would like to evaluate: ")
-    tickerSymbol = 'LSCC'
-    ticker = Ticker(tickerSymbol)
-    ticker.pullData()
-    tickerData = ticker.getData()
-    print("Enter five similiar companies to compare to:")
+    tickerSymbols = ['GOOG','AMZN','AVGO','META','AAPL']
+    for tickerSymbol in tickerSymbols:
+        ticker = Ticker(tickerSymbol)
+        ticker.pullData()
+        tickerData = ticker.getData()
+        print("CurrentReportDate -", tickerData['reportDate'])
+        print("Ticker -", tickerSymbol)
+        print("Revenue -", tickerData['revenue'])
+        print("EBITDA -", tickerData['ebitda'])
+        print("Debt -", tickerData['debt'])
+        print("Cash -", tickerData['cash'])
+        print("Shares -", tickerData['shares'])
+        print("CFO -", tickerData['CFO'])
+        print("TaxRate -", tickerData['TaxRate'])
+    '''print("Enter five similiar companies to compare to:")
     toComp = [Ticker('MTSI'),Ticker('POWI'),
               Ticker('QRVO'),Ticker('RMBS'),Ticker('SLAB')]
     PerYGrowth = .25
@@ -101,7 +111,7 @@ def main():
     print()
     print("--Discounted Cash Flow--")
     print("Discounted Cash Flow Implied Share Price: ", DiscountedCashFlow(tickerData,PerYGrowth))
-    print("Real Share Price:", tickerData['ticker'].info['regularMarketPreviousClose'])
+    print("Real Share Price:", tickerData['ticker'].info['regularMarketPreviousClose'])'''
 
 if __name__ == "__main__":
     main()

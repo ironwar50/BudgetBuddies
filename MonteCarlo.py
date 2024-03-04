@@ -14,7 +14,7 @@ def MonteCarloSimluation(variable_dist, variable_names):
     copula = ot.NormalCopula(R)
     BuiltComposedDistribution = ot.ComposedDistribution(variable_dist, copula)
 
-    generated_sample = BuiltComposedDistribution.getSample(100000)
+    generated_sample = BuiltComposedDistribution.getSample(10000)
     df_generated_sample = pd.DataFrame.from_records(generated_sample, columns=variable_names)
     return df_generated_sample
 
@@ -208,7 +208,7 @@ def MonteCarlo(tickerData,PerYGrowth):
     return df_filtered
 
 def main():
-    tickerSymbol = 'LS'
+    tickerSymbol = 'NVDA'
     ticker = Ticker(tickerSymbol)
     ticker.pullData()
     tickerData = ticker.getData()

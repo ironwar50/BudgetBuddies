@@ -4,13 +4,13 @@ import requests
 
 def checkData(tickerData):
     for key in tickerData.keys():
-        if str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A' and not key == 'ticker':
+        if not key == 'ticker' and not key == 'reportDate' and str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A':
             tickerData[key] = 0
 
 class Ticker:
     def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, debt=0, cash=0, shares=0, 
                  CFO=0, TaxRate=0, PE = 0, marketCap = 0, enterpriseValue = 0, 
-                 enterpriseToRevenue = 0, enterpriseToEbitda = 0, eps = 0, beta = 0, symbol = ''):
+                 enterpriseToRevenue = 0, enterpriseToEbitda = 0, eps = 0, beta = 0, reportDate = ''):
         tickerInfo = yf.Ticker(tickerSymbol.upper()).info
         self.ticker = yf.Ticker(tickerSymbol.upper())
         self.revenue = revenue
@@ -53,6 +53,7 @@ class Ticker:
             self.beta = tickerInfo['beta']
         else:
             self.beta = beta
+        self.reportDate = reportDate
     
     def sentimentAnalysis(self):
         key = '2ULL03GV6Y8DIGZV'
@@ -80,7 +81,9 @@ class Ticker:
         
     def pullData(self):
         ticker = self.ticker
-        tickerIncome = ticker.quarterly_income_stmt.transpose() 
+        tickerIncome = ticker.quarterly_income_stmt 
+        self.reportDate = tickerIncome.keys()[0]
+        tickerIncome = tickerIncome.transpose()
         tickerBalance = ticker.quarterly_balance_sheet.transpose()                                                              
         tickerCashFlow = ticker.quarterly_cash_flow.transpose()
         tickerInfo = ticker.info
@@ -120,7 +123,7 @@ class Ticker:
                 'marketCap' : self.marketCap,'enterpriseValue' : self.enterpriseValue, 
                 'enterpriseToRevenue' : self.enterpriseToRevenue, 
                 'enterpriseToEbitda' : self.enterpriseToEbitda,'eps' : self.eps, 
-                'beta' : self.beta}
+                'beta' : self.beta, 'reportDate': self.reportDate}
         checkData(tickerData)
         return tickerData
                                        
