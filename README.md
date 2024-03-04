@@ -1,43 +1,74 @@
-4 Files  
--Main (webpage and integration)  
+9 Files  
+-Main (start app)  
 -PageLayouts (stores layouts for each page)  
--Algorithm  
+-Algorithm (contains contains functions to calculate DCF and Trade Cmomps)   
 -Database  
+-Dashboard (Get input data and calls functions to get data for dashboard)  
+-navbar (sets up moving between pages)  
+-equations (stores equation function to be used in algorithm)  
+-tickerData (stores ticker class which contains methods for geting and pulling data)  
+-MonteCarlo.py (performs the monte carlo simulations)   
 
 
 At least 3 layouts  
 -Start  
--Prompt - Kris  
--Dashboard
+-Prompt Kris    
+-Dashboard  
 
-
-3 main functions to call from Algorithm  
--ticker data (gets necessary data from entered ticker)  
+Alogorithm (2 functinos)  
 -trade comps (returns 3 calculated share prices)  
--DCF (returns an implied share price and a few data points)
+-DCF (returns an implied share price and a few data points)  
 
 
-Database - Polly  
+Database Polly  
 -Create table with necessary variables  
 -Check if ticker is in database  
--Check if date stored matches most recent date
+-Check if date stored matches most recent date  
+-Store data from ticker object  
+-Create ticker object from stored data  
 
 
 Main   
--webpage functionality  
--input/output (take in data, call function, return output)
+-start app with navbar  
 
 
-Error Checking - Alexis  
--check if tickers enter exist  
--check if data needed exists
+Dashboard  
+-gets input data   
+-calls all necessary functions to get data for dashboard  
+-create_dashboard function that returns dictionary of dashboard data  
+
+
+navbar  
+-calls page layouts  
+-handles switching between pages  
+
+
+equations  
+-contains necessary equations for calling in algorithm and monte carlo simluaiton.  
+
+
+tickerData  
+-contains ticker class which stores all data needed for a ticker  
+-can be initialized with just the ticker symbol or with necessary data.  
+-contains pullData and getData method for retrieve data from the yfinance and returning data as dictionary  
+-method for pefroming sentiment analysis  
+
+
+Monte Carlo  
+-runs monte carlo simulations of DCF  
+-returns a distrubtion of valuations for displaying in graph  
+
+
+Error Checking  
+-check if tickers entered exist  
+-check if data needed exists  
+-check for outlier data  
 
 
 Problems  
--unreliable data (ex. POWI) *Improved   
--negative numbers  *Set to zero but still thats the right move
--stock graph (line, candlestick) *Still need look at how to pull dates
--Dashboard sizes  *possibly minimally improved, not fixed
--dates input uncessary maybe  
--Get average yearly growth input
+-unreliable data (ex. POWI)  
+-negative numbers  
+-dashboard loads slow  
+-Dashboard formating for screen size  
+-sensitive to wrong data  
 
