@@ -71,10 +71,12 @@ def DiscountedCashFlow(tickerData,PerYGrowth):
     presentValueSum = eq.presentValue(tickerData['CFO'],wacc,1)
     futureCFO = []
     temp = tickerData['CFO']
+    count = 2
     for i in range(4):
         temp *= (1 + PerYGrowth)
         futureCFO.append(temp)
-        presentValueSum += eq.presentValue(temp,wacc,i+2)
+        presentValueSum += eq.presentValue(temp,wacc,count)
+        count+=1
     terminalValue = eq.tVal(futureCFO[3],TargetGrowthRate,wacc)
     PresentOfTerminal = eq.presentTerminalValue(terminalValue,wacc,5)
     EnterpriseValue = eq.enVal(presentValueSum,PresentOfTerminal)
@@ -83,26 +85,15 @@ def DiscountedCashFlow(tickerData,PerYGrowth):
     return {"ImpliedSharePrice" : ImpliedSharePrice, "FreeCashFlow" : tickerData['CFO'], "LastYearCashFlow" : futureCFO[3]}
 
 def main():
-    print("Enter the ticker you would like to evaluate: ")
-    tickerSymbols = ['GOOG','AMZN','AVGO','META','AAPL']
-    for tickerSymbol in tickerSymbols:
-        ticker = Ticker(tickerSymbol)
-        ticker.pullData()
-        tickerData = ticker.getData()
-        print("CurrentReportDate -", tickerData['reportDate'])
-        print("Ticker -", tickerSymbol)
-        print("Revenue -", tickerData['revenue'])
-        print("EBITDA -", tickerData['ebitda'])
-        print("Debt -", tickerData['debt'])
-        print("Cash -", tickerData['cash'])
-        print("Shares -", tickerData['shares'])
-        print("CFO -", tickerData['CFO'])
-        print("TaxRate -", tickerData['TaxRate'])
-    '''print("Enter five similiar companies to compare to:")
-    toComp = [Ticker('MTSI'),Ticker('POWI'),
-              Ticker('QRVO'),Ticker('RMBS'),Ticker('SLAB')]
-    PerYGrowth = .25
+    tickerSymbol = 'NVDA'
+    ticker = Ticker(tickerSymbol)
+    ticker.pullData()
+    tickerData = ticker.getData()
+    toComp = [Ticker('INTC'),Ticker('AMD'),
+              Ticker('TSM'),Ticker('QCOM'),Ticker('AVGO')]
+    PerYGrowth = .65
     TradeCompPrices = TradeComps(toComp, tickerData)
+
     print("--Trading Comps--")
     print("Implied Share Price from Revenue: ", TradeCompPrices['revenue_SharePrice'])
     print("Implied Share Price from EBITDA: ", TradeCompPrices['ebitda_SharePrice'])
@@ -110,8 +101,8 @@ def main():
     print("Average Share Price: ", TradeCompPrices['average_SharePrice'])
     print()
     print("--Discounted Cash Flow--")
-    print("Discounted Cash Flow Implied Share Price: ", DiscountedCashFlow(tickerData,PerYGrowth))
-    print("Real Share Price:", tickerData['ticker'].info['regularMarketPreviousClose'])'''
+    print("Discounted Cash Flow Implied Share Price: ", DiscountedCashFlow(tickerData,PerYGrowth)['ImpliedSharePrice'])
+    print("Real Share Price:", tickerData['ticker'].info['regularMarketPreviousClose'])
 
 if __name__ == "__main__":
     main()

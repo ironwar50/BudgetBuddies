@@ -15,7 +15,13 @@ def meanSTD(list):
     res = variance ** 0.5
     return [mean, res]
 
-def newMonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, marketCap, TaxRate, CostofDebt, PerYGrowth, TargetGrowthRate, cash, presentValue, shares):
+'''
+Performs Monte Carlo simulation on DCF model. Takes in input variables required to perform DCF, then creates distributions based on them.
+The distrubtions are combined and a dataframe with 100,000 simulations is generated. New distributions are added by making calculations on the 
+existing columns and storing the data in a new column. This is done same as previous in the DCF, just for 100,000 data points. This creates 
+a distributions of valuations which can be used to create a graph.
+'''
+def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, marketCap, TaxRate, CostofDebt, PerYGrowth, TargetGrowthRate, cash, presentValue, shares):
     beta = ot.Triangular(beta * .9, beta, beta * 1.1)
     ExpectedReturn = ot.Normal(ExpectedReturn, ExpectedReturn * .2)
     risk_free_rate = ot.Normal(risk_free_rate, risk_free_rate * .2)
@@ -84,6 +90,16 @@ def newMonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, marketCa
     return df_generated_sample['ImpliedSharePrice']
 
 def MonteCarlo(tickerData,PerYGrowth):
+    """Gets necessesary data to perfrom DCF, calls the MonteCarloSimulation, 
+    then removes outlier from distribution
+
+    Args:
+        tickerData (Dict): Dictionary of ticker data.
+        PerYGrowth (Float): User inputed average per year growth rate  
+
+    Returns:
+        df_filter: List containing distribution of valuations
+    """
     cash = tickerData['cash']
     debt = tickerData['debt']
     shares = tickerData['shares']
@@ -96,7 +112,7 @@ def MonteCarlo(tickerData,PerYGrowth):
     CFO = tickerData['CFO']
     TaxRate = tickerData['TaxRate']
    
-    ISPD = newMonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, marketCap, TaxRate, CostofDebt, PerYGrowth, TargetGrowthRate, cash, CFO, shares)
+    ISPD = MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, marketCap, TaxRate, CostofDebt, PerYGrowth, TargetGrowthRate, cash, CFO, shares)
 
     q_low = ISPD.quantile(0.005)
     q_hi = ISPD.quantile(0.935)

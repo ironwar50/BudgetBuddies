@@ -172,6 +172,16 @@ def ThirtyDayEMA(df):
     return thiryDayAVG
 
 def getMonteCarlo(tickerData, PerYearGrowth):
+    """Generate histogram based on Monte Carlo simulations
+
+    Args:
+        tickerData (Dict): Dictionary of ticker data.
+        PerYearGrowth (Float): User inputed average per year growth rate 
+
+    Returns:
+        figure: histogram
+        mean: float
+    """
     distribution =  MC.MonteCarlo(tickerData, PerYearGrowth)
     fig = px.histogram(distribution, nbins=65, title='Monte Carlo Simulation of DCF')
     mean = distribution.mean()
