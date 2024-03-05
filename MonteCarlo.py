@@ -126,7 +126,7 @@ def main():
     ticker = Ticker(tickerSymbol)
     ticker.pullData()
     tickerData = ticker.getData()
-    PerYGrowth = .25
+    PerYGrowth = .65
     monteCarlo = MonteCarlo(tickerData, PerYGrowth)
     fig = px.histogram(monteCarlo, nbins=65)
     fig.show()
