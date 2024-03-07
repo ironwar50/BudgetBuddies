@@ -104,8 +104,14 @@ def get_ticker_info(ticker_data):
     tickerInfo = ticker_data['ticker'].info
     FullName = tickerInfo['longName']
     LastClose = tickerInfo['previousClose']
-    TrailingPE = tickerInfo['trailingPE']
-    ForwardPE = tickerInfo['forwardPE']
+    if 'trailingPE' in tickerInfo.keys():
+        TrailingPE = str("%0.2f" %tickerInfo['trailingPE'])
+    else:
+        TrailingPE = ""
+    if 'forwardPE' in tickerInfo.keys():
+        ForwardPE = str("%0.2f" %tickerInfo['forwardPE'])
+    else:
+        ForwardPE = ""
     avgAnalystTarget = tickerInfo['targetMeanPrice']
     return FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget
 

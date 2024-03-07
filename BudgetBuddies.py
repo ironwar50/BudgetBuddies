@@ -84,6 +84,7 @@ def DiscountedCashFlow(tickerData,PerYGrowth):
     ImpliedSharePrice = eq.sharePriceImpl(EquityValue, shares)
     return {"ImpliedSharePrice" : ImpliedSharePrice, "FreeCashFlow" : tickerData['CFO'], "LastYearCashFlow" : futureCFO[3]}
 
+#for testing
 def main():
     tickerSymbol = 'NVDA'
     ticker = Ticker(tickerSymbol)

@@ -121,6 +121,7 @@ def MonteCarlo(tickerData,PerYGrowth):
 
     return df_filtered
 
+#for testing
 def main():
     tickerSymbol = 'NVDA'
     ticker = Ticker(tickerSymbol)

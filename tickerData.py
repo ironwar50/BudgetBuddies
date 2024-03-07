@@ -88,16 +88,16 @@ class Ticker:
         tickerCashFlow = ticker.quarterly_cash_flow.transpose()
         tickerInfo = ticker.info
         self.marketCap = ticker.info['marketCap']
-        revnue = 0
+        revenue = 0
         ebitda = 0
         netIncome = 0 
         cfo = 0
         for i in range(4):                                                                                                      
-            revnue += tickerIncome['Total Revenue'].iloc[i]
+            revenue += tickerIncome['Total Revenue'].iloc[i]
             ebitda += tickerIncome['EBITDA'].iloc[i]
             netIncome += tickerIncome['Net Income'].iloc[i] 
             cfo += tickerCashFlow['Cash Flow From Continuing Operating Activities'].iloc[i]
-        self.revenue = revnue
+        self.revenue = revenue
         self.ebitda = ebitda
         self.netIncome = netIncome                                                                                                
         if 'totalCash' in tickerInfo.keys():
