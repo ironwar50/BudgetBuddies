@@ -1,6 +1,8 @@
 import yfinance as yf
 import pandas as pd
 import requests
+from dotenv import load_dotenv
+import os
 
 def checkData(tickerData):
     for key in tickerData.keys():
@@ -56,9 +58,11 @@ class Ticker:
         self.reportDate = reportDate
     
     def sentimentAnalysis(self):
-        key = '2ULL03GV6Y8DIGZV'
+        load_dotenv()
+        alpha_vantage_key = os.getenv('ALPHA_VANTAGE_KEY')
+        #key = '2ULL03GV6Y8DIGZV'
         symbol = self.ticker.info['symbol'].upper().strip()
-        url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, key)
+        url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, valpha_vantage_key)
         r = requests.get(url)
         data = r.json()
         sentimentTotal = 0
