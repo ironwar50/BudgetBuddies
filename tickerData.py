@@ -6,15 +6,17 @@ import os
 
 def checkData(tickerData):
     for key in tickerData.keys():
-        if not key == 'ticker' and not key == 'reportDate' and str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A':
+        if not key == 'tickerSymbol' and not key == 'ticker' and not key == 'reportDate' and str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A':
             tickerData[key] = 0
 
 class Ticker:
     def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, debt=0, cash=0, shares=0, 
                  CFO=0, TaxRate=0, PE = 0, marketCap = 0, enterpriseValue = 0, 
-                 enterpriseToRevenue = 0, enterpriseToEbitda = 0, eps = 0, beta = 0, reportDate = ''):
-        tickerInfo = yf.Ticker(tickerSymbol.upper()).info
-        self.ticker = yf.Ticker(tickerSymbol.upper())
+                 enterpriseToRevenue = 0, enterpriseToEbitda = 0, eps = 0, beta = 0):
+        self.tickerSymbol = tickerSymbol.upper()
+        self.ticker = yf.Ticker(self.tickerSymbol)
+        tickerInfo = self.ticker.info
+        self.reportDate = self.ticker.earnings_dates.index[4]
         self.revenue = revenue
         self.ebitda = ebitda
         self.netIncome = netIncome
@@ -55,14 +57,24 @@ class Ticker:
             self.beta = tickerInfo['beta']
         else:
             self.beta = beta
-        self.reportDate = reportDate
-    
+        
+    def updateFromDatabase(self, revenue, ebitda, netIncome, debt, cash, shares, 
+                 CFO, TaxRate):
+        self.revenue = revenue
+        self.ebitda = ebitda
+        self.netIncome = netIncome
+        self.debt = debt
+        self.cash = cash
+        self.shares = shares
+        self.CFO = CFO
+        self.TaxRate = TaxRate
+
     def sentimentAnalysis(self):
         load_dotenv()
         alpha_vantage_key = os.getenv('ALPHA_VANTAGE_KEY')
         #key = '2ULL03GV6Y8DIGZV'
         symbol = self.ticker.info['symbol'].upper().strip()
-        url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, valpha_vantage_key)
+        url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, alpha_vantage_key)
         r = requests.get(url)
         data = r.json()
         sentimentTotal = 0
@@ -86,7 +98,6 @@ class Ticker:
     def pullData(self):
         ticker = self.ticker
         tickerIncome = ticker.quarterly_income_stmt 
-        self.reportDate = tickerIncome.keys()[0]
         tickerIncome = tickerIncome.transpose()
         tickerBalance = ticker.quarterly_balance_sheet.transpose()                                                              
         tickerCashFlow = ticker.quarterly_cash_flow.transpose()
@@ -121,13 +132,13 @@ class Ticker:
         self.TaxRate = tickerIncome['Tax Rate For Calcs'].iloc[0]
     
     def getData(self):
-        tickerData =  {'ticker' : self.ticker,'revenue': self.revenue,'ebitda' : self.ebitda, 
+        tickerData =  {'tickerSymbol': self.tickerSymbol, 'ticker' : self.ticker,'revenue': self.revenue,'ebitda' : self.ebitda, 
                 'netIncome' : self.netIncome,'debt' : self.debt,'cash' : self.cash,
                 'shares' : self.shares,'CFO' : self.CFO,'TaxRate' : self.TaxRate,'PE' : self.PE, 
                 'marketCap' : self.marketCap,'enterpriseValue' : self.enterpriseValue, 
                 'enterpriseToRevenue' : self.enterpriseToRevenue, 
                 'enterpriseToEbitda' : self.enterpriseToEbitda,'eps' : self.eps, 
-                'beta' : self.beta, 'reportDate': self.reportDate}
+                'beta' : self.beta, 'reportDate': str(self.reportDate)}
         checkData(tickerData)
         return tickerData
                                        

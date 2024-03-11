@@ -4,9 +4,9 @@ import BudgetBuddies as eq
 import plotly.graph_objects as go
 from tickerData import Ticker
 import numpy as np
-import MonteCarlo as MC
+import MonteCarlo as mc
 import plotly.express as px
-
+import localDatabase as ld
 
 def get_start_end_dates():
     """Get the start and end dates for a date range.
@@ -188,7 +188,7 @@ def getMonteCarlo(tickerData, PerYearGrowth):
         figure: histogram
         mean: float
     """
-    distribution =  MC.MonteCarlo(tickerData, PerYearGrowth)
+    distribution =  mc.MonteCarlo(tickerData, PerYearGrowth)
     fig = px.histogram(distribution, nbins=65, title='Monte Carlo Simulation of DCF')
     mean = distribution.mean()
     return {'fig': fig, 'mean': mean}
@@ -197,8 +197,9 @@ def create_dashboard_data(df):
     tickerSymbol = df['Ticker'].iloc[0]
     perYearGrowth = df['PerYearGrowth'].iloc[0]
     compareTickers = df['CompareTickers'].iloc[0]
-
-    ticker = Ticker(tickerSymbol)
+    
+    #ticker = Ticker(tickerSymbol)
+    ticker = ld.createTicker(tickerSymbol)
     start, end = get_start_end_dates()
     tickerData = get_ticker_data(ticker)
     compareTickersList = [Ticker(symbol) for symbol in compareTickers.split(',')]
