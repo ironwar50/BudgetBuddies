@@ -21,6 +21,10 @@ def create_dashboard(dashboard_data):
                 html.P(dashboard_data['ForwardPE'],style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
+                html.P("EPS",style={'display' : 'inline-block','margin-left' : '150px'}),
+                html.P(dashboard_data['eps'],style={'float' : 'right','display' : 'inline-block'})
+        ]),
+        html.Div([
                 html.P("Analyst Target",style={'display' : 'inline-block','margin-left' : '150px'}),
                 html.P(dashboard_data['avgAnalystTarget'],style={'float' : 'right','display' : 'inline-block'})
         ]),

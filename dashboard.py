@@ -231,6 +231,7 @@ def create_dashboard_data(df):
         'aLogReturn': aLogReturn,
         'movingAVG': movingAVG,
         'monteCarloFig': monteCarlo['fig'],
-        'monteCarloMean': monteCarlo['mean']
+        'monteCarloMean': monteCarlo['mean'],
+        'eps' : tickerData['eps']
     }
 
