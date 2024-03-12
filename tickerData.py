@@ -6,9 +6,9 @@ import os
 
 def checkData(tickerData):
     for key in tickerData.keys():
-        if not key == 'tickerSymbol' and not key == 'ticker' 
+        if (not key == 'tickerSymbol' and not key == 'ticker' 
         and not key == 'reportDate' and str(tickerData[key])[0] < 'z' 
-        and str(tickerData[key])[0] > 'A':
+        and str(tickerData[key])[0] > 'A'):
             tickerData[key] = 0
 
 class Ticker:
