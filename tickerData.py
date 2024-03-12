@@ -72,7 +72,6 @@ class Ticker:
     def sentimentAnalysis(self):
         load_dotenv()
         alpha_vantage_key = os.getenv('ALPHA_VANTAGE_KEY')
-        #key = '2ULL03GV6Y8DIGZV'
         symbol = self.ticker.info['symbol'].upper().strip()
         url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, alpha_vantage_key)
         r = requests.get(url)
