@@ -6,7 +6,14 @@ import equations as eq
 from tickerData import Ticker
 import pandas as pd
 import plotly.express as px
-fred = Fred(api_key='a02d5cbed56418e2d72837659e22b8ca')
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+fred_api_key = os.getenv('FRED_API_KEY')
+
+fred = Fred(api_key=fred_api_key)
 ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
 
 def meanSTD(list):
