@@ -9,9 +9,15 @@ csv_file = 'user_input.csv'
 
 home_layout = html.Div(children=[html.H1(children="This is our Home page")])
 
-data_upload_layout = html.Div(children=[
+'''data_upload_layout = html.Div(children=[
     pl.upload_data_layout()
-])
+])'''
+
+def get_upload_layout(error=False):
+    alerts = html.Div()
+    if error:
+        alerts = html.Div(dbc.Alert("Invalid Ticker", color="warning"),style={'text-align': 'center'})
+    return html.Div(children=[alerts,pl.upload_data_layout()])
 
 
 def get_dashboard_layout():
@@ -22,6 +28,8 @@ def get_dashboard_layout():
     Return the dashboard that will be created.
     """
     df = db.create_dashboard_data(pd.read_csv(csv_file))
+    if df['error']:
+        return get_upload_layout(df['error'])
     return pl.create_dashboard(df)
 
 
@@ -58,7 +66,7 @@ def display_page(pathname):
     if pathname == "/":
         return home_layout
     elif pathname == "/upload_layout":
-        return data_upload_layout
+        return get_upload_layout()
     elif pathname == "/dashboard_layout":
         return get_dashboard_layout()
     else:

@@ -17,9 +17,14 @@ class Ticker:
                  marketCap = 0, enterpriseValue = 0, enterpriseToRevenue = 0, 
                  enterpriseToEbitda = 0, eps = 0, beta = 0):
         self.tickerSymbol = tickerSymbol.upper()
-        self.ticker = yf.Ticker(self.tickerSymbol)
+        self.ticker = yf.Ticker(self.tickerSymbol) 
         tickerInfo = self.ticker.info
-        self.reportDate = self.ticker.earnings_dates.index[4]
+        try:
+            self.reportDate = self.ticker.earnings_dates.index[4]
+        except:
+            print("KEY ERROR")
+            self.reportDate = ''
+            self.tickerSymbol = -1
         self.revenue = revenue
         self.ebitda = ebitda
         self.netIncome = netIncome
@@ -60,6 +65,7 @@ class Ticker:
             self.beta = tickerInfo['beta']
         else:
             self.beta = beta
+        
         
     def updateFromDatabase(self, revenue, ebitda, netIncome, debt, cash, shares, 
                  CFO, TaxRate):

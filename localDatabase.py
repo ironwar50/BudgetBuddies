@@ -58,10 +58,12 @@ def checkDate(newDate, tickerSymbol)->bool:
 
 #create new ticker from database or by pulling data based on the checkdate function
 #if date doesn't match or ticker not in database add data to database. 
-def createTicker(tickerSymbol: str) ->Ticker:
+def createTicker(tickerSymbol):
     create_ticker_data_table()
     ticker = Ticker(tickerSymbol)
     tickerData = ticker.getData()
+    if tickerData['tickerSymbol'] == -1:
+        return -1
     if checkDate(tickerData['reportDate'], tickerSymbol):
         with sql.connect('budgetbuddies.db') as conn:
             conn.row_factory = sql.Row

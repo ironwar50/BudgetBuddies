@@ -7,6 +7,7 @@ import numpy as np
 import MonteCarlo as mc
 import plotly.express as px
 import localDatabase as ld
+import PageLayouts as pl
 
 def get_start_end_dates():
     """Get the start and end dates for a date range.
@@ -204,6 +205,8 @@ def create_dashboard_data(df):
     
     #ticker = Ticker(tickerSymbol)
     ticker = ld.createTicker(tickerSymbol)
+    if ticker == -1:
+        return{'error': True}
     start, end = get_start_end_dates()
     tickerData = get_ticker_data(ticker)
     compareTickersList = [Ticker(symbol) for symbol in compareTickers.split(',')]
@@ -236,6 +239,7 @@ def create_dashboard_data(df):
         'movingAVG': movingAVG,
         'monteCarloFig': monteCarlo['fig'],
         'monteCarloMean': monteCarlo['mean'],
-        'eps' : tickerData['eps']
+        'eps' : tickerData['eps'],
+        'error' : False
     }
 
