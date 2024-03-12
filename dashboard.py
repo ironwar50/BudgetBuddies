@@ -7,6 +7,7 @@ import numpy as np
 import MonteCarlo as mc
 import plotly.express as px
 import localDatabase as ld
+import PageLayouts as pl
 
 def get_start_end_dates():
     """Get the start and end dates for a date range.
@@ -134,9 +135,13 @@ def generate_comparison_div(toCompData):
     x = 0
     for data in toCompData:
         if x > 0:
-            toCompDiv.append(html.P(str(data[0]) + ":   " + str(data[1]), style={'display': 'inline-block', 'margin-left': '50px'}))
+            toCompDiv.append(html.P(str(data[0]) + ":   " + 
+                                str(data[1]), 
+                                style={'display': 'inline-block', 'margin-left': '50px'}))
         else:
-            toCompDiv.append(html.P(str(data[0]) + ":   " + str(data[1]), style={'display': 'inline-block'}))
+            toCompDiv.append(html.P(
+                str(data[0]) + ":   " + str(data[1]), 
+                style={'display': 'inline-block'}))
             x += 1
     return toCompDiv
 
@@ -200,6 +205,8 @@ def create_dashboard_data(df):
     
     #ticker = Ticker(tickerSymbol)
     ticker = ld.createTicker(tickerSymbol)
+    if ticker == -1:
+        return{'error': True}
     start, end = get_start_end_dates()
     tickerData = get_ticker_data(ticker)
     compareTickersList = [Ticker(symbol) for symbol in compareTickers.split(',')]
@@ -231,6 +238,8 @@ def create_dashboard_data(df):
         'aLogReturn': aLogReturn,
         'movingAVG': movingAVG,
         'monteCarloFig': monteCarlo['fig'],
-        'monteCarloMean': monteCarlo['mean']
+        'monteCarloMean': monteCarlo['mean'],
+        'eps' : tickerData['eps'],
+        'error' : False
     }
 

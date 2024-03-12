@@ -15,8 +15,11 @@ ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
 
 '''
 Performs the Trade Comps calculation. 
-Takes in the tickers being compared to along with the cash, debt, number of shares, and EPS of the target ticker.
-Returns a dictionary with the three calculated shares prices on revenue, EBITDA, and net income/Price to Earnings
+Takes in the tickers being compared to along with the cash,
+debt, number of shares, and EPS of the target ticker.
+
+Returns a dictionary with the three calculated shares prices on revenue, 
+EBITDA, and net income/Price to Earnings
 '''
 def TradeComps(toComp, tickerData):
     AVG_rev_multi = 0 
@@ -29,7 +32,8 @@ def TradeComps(toComp, tickerData):
         tick.pullData()
         tickData = tick.getData()
         if tickData['enterpriseValue'] == 0:
-            EV = eq.enterprise_value(tickData['marketCap'],tickData['debt'],tickData['cash'])
+            EV = eq.enterprise_value(
+                    tickData['marketCap'],tickData['debt'],tickData['cash'])
         else: 
             EV = tickData['enterpriseValue']
         if tickData['enterpriseToRevenue'] == 0:
@@ -50,16 +54,28 @@ def TradeComps(toComp, tickerData):
     AVG_rev_multi /= revNum
     AVG_EBITDA_multi /= ebitdaNum
     AVG_PE_ratio /= netIncNum
-    revenue_SharePrice = eq.impliedSharePriceRevenue(eq.impliedValueRevenue(eq.implied_ev_from_revenue(AVG_rev_multi,tickerData['revenue']),tickerData['cash'],tickerData['debt']),tickerData['shares'])
-    ebitda_SharePrice = eq.impliedSharePriceEBITDA(eq.impliedValueEBITDA(eq.implied_ev_from_ebitda(AVG_EBITDA_multi,tickerData['ebitda']),tickerData['cash'],tickerData['debt']),tickerData['shares'])
-    NetIncome_SharePrice = eq.impliedSharePriceNetIncome(eq.impliedValueNetIncome(tickerData['eps'], tickerData['shares'], AVG_PE_ratio),tickerData['shares'])
+    revenue_SharePrice = eq.impliedSharePriceRevenue(
+            eq.impliedValueRevenue(eq.implied_ev_from_revenue(
+                AVG_rev_multi,tickerData['revenue']),tickerData['cash'],
+                                   tickerData['debt']),tickerData['shares'])
+    ebitda_SharePrice = eq.impliedSharePriceEBITDA(
+            eq.impliedValueEBITDA(eq.implied_ev_from_ebitda(
+                AVG_EBITDA_multi,tickerData['ebitda']),tickerData['cash'],
+                                  tickerData['debt']),tickerData['shares'])
+    NetIncome_SharePrice = eq.impliedSharePriceNetIncome(
+            eq.impliedValueNetIncome(tickerData['eps'], tickerData['shares'], 
+                                     AVG_PE_ratio),tickerData['shares'])
     AVG_SharePrice = (revenue_SharePrice + ebitda_SharePrice + NetIncome_SharePrice) / 3
     
-    return {"revenue_SharePrice" : revenue_SharePrice, "ebitda_SharePrice" : ebitda_SharePrice, "netIncome_SharePrice" : NetIncome_SharePrice, "average_SharePrice" : AVG_SharePrice}
+    return {"revenue_SharePrice" : revenue_SharePrice, "ebitda_SharePrice" : 
+            ebitda_SharePrice, "netIncome_SharePrice" : NetIncome_SharePrice, 
+            "average_SharePrice" : AVG_SharePrice}
 
 '''
 Performs the Discounted Cash Flow calculation.
-Takes in the ticker, an averages estimated per year growth, the cashflow sheet, cash, debt, market cap, and number of shares of a given ticker.
+Takes in the ticker, an averages estimated per year growth, 
+the cashflow sheet, cash, debt, market cap, and number of shares of a given ticker.
+
 It returns a dictionary with the calculated shares price with the first and last year cash flow.
 '''
 
@@ -90,7 +106,8 @@ def DiscountedCashFlow(tickerData,PerYGrowth):
     EnterpriseValue = eq.enVal(presentValueSum,PresentOfTerminal)
     EquityValue = eq.eVal(EnterpriseValue,cash,debt)
     ImpliedSharePrice = eq.sharePriceImpl(EquityValue, shares)
-    return {"ImpliedSharePrice" : ImpliedSharePrice, "FreeCashFlow" : tickerData['CFO'], "LastYearCashFlow" : futureCFO[3]}
+    return {"ImpliedSharePrice" : ImpliedSharePrice, "FreeCashFlow" : tickerData['CFO'],
+            "LastYearCashFlow" : futureCFO[3]}
 
 #for testing
 def main():
