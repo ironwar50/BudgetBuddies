@@ -23,12 +23,17 @@ def meanSTD(list):
     return [mean, res]
 
 '''
-Performs Monte Carlo simulation on DCF model. Takes in input variables required to perform DCF, then creates distributions based on them.
-The distrubtions are combined and a dataframe with 100,000 simulations is generated. New distributions are added by making calculations on the 
-existing columns and storing the data in a new column. This is done same as previous in the DCF, just for 100,000 data points. This creates 
+Performs Monte Carlo simulation on DCF model. Takes in input variables
+required to perform DCF, then creates distributions based on them.
+The distrubtions are combined and a dataframe with 100,000 simulations is generated. 
+New distributions are added by making calculations on the 
+existing columns and storing the data in a new column. 
+This is done same as previous in the DCF, just for 100,000 data points. This creates 
 a distributions of valuations which can be used to create a graph.
 '''
-def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, marketCap, TaxRate, CostofDebt, PerYGrowth, TargetGrowthRate, cash, presentValue, shares):
+def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, 
+                         marketCap, TaxRate, CostofDebt, PerYGrowth, 
+                         TargetGrowthRate, cash, presentValue, shares):
     beta = ot.Triangular(beta * .9, beta, beta * 1.1)
     ExpectedReturn = ot.Normal(ExpectedReturn, ExpectedReturn * .2)
     risk_free_rate = ot.Normal(risk_free_rate, risk_free_rate * .2)
@@ -43,28 +48,38 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, marketCap, 
     presentValue = ot.Normal(presentValue, presentValue*.05)
     shares = ot.Normal(shares, shares*.05)
 
-    variable_dist = [beta, ExpectedReturn, risk_free_rate, debt, marketCap, TaxRate, CostofDebt, PerYGrowth, TargetGrowthRate, cash, presentValue, shares]
-    variable_names = ['beta', 'ExpectedReturn', 'risk_free_rate', 'debt', 'marketCap', 'TaxRate', 'CostofDebt', 'PerYGrowth', 'TargetGrowthRate', 'cash', 'presentValue', 'shares']
+    variable_dist = [beta, ExpectedReturn, risk_free_rate, debt, marketCap, 
+                     TaxRate, CostofDebt, PerYGrowth, TargetGrowthRate, cash, 
+                     presentValue, shares]
+    variable_names = ['beta', 'ExpectedReturn', 'risk_free_rate', 'debt', 
+                      'marketCap', 'TaxRate', 'CostofDebt', 'PerYGrowth', 
+                      'TargetGrowthRate', 'cash', 'presentValue', 'shares']
 
     R = ot.CorrelationMatrix(len(variable_dist))
     copula = ot.NormalCopula(R)
     BuiltComposedDistribution = ot.ComposedDistribution(variable_dist, copula)
 
     generated_sample = BuiltComposedDistribution.getSample(100000)
-    df_generated_sample = pd.DataFrame.from_records(generated_sample, columns=variable_names)
+    df_generated_sample = pd.DataFrame.from_records(generated_sample, 
+                                                    columns=variable_names)
 
     df_generated_sample['EquityCost'] = df_generated_sample.apply(
-        lambda row: eq.equityCost(Beta=row.iloc[0], ExpReturn=row.iloc[1], RiskFreeRate=row.iloc[2]), axis=1)
+        lambda row: eq.equityCost(Beta=row.iloc[0], ExpReturn=row.iloc[1], 
+                                  RiskFreeRate=row.iloc[2]), axis=1)
     
     
     df_generated_sample['EquityPercent'] = df_generated_sample.apply(
-        lambda row: eq.equityPercent(eVal=row.iloc[3]+row.iloc[4], Debt=row.iloc[3]), axis=1)
+        lambda row: eq.equityPercent(eVal=row.iloc[3]+row.iloc[4], 
+                                     Debt=row.iloc[3]), axis=1)
 
     df_generated_sample['DebtPercent'] = df_generated_sample.apply(
-        lambda row: eq.debtPercent(Debt=row.iloc[3], eVal=row.iloc[4] + row.iloc[3]), axis=1)
+        lambda row: eq.debtPercent(Debt=row.iloc[3], 
+                                   eVal=row.iloc[4] + row.iloc[3]), axis=1)
     
     df_generated_sample['WACC'] = df_generated_sample.apply(
-        lambda row: eq.WACC(equityPercent=row['EquityPercent'], equityCost=row['EquityCost'], debtPercent=row['DebtPercent'], debtCost=row.iloc[6],taxRate=row.iloc[5]), axis=1)
+        lambda row: eq.WACC(equityPercent=row['EquityPercent'], 
+                            equityCost=row['EquityCost'], debtPercent=row['DebtPercent'], 
+                            debtCost=row.iloc[6],taxRate=row.iloc[5]), axis=1)
     
     df_generated_sample['PresentValue0'] = df_generated_sample['presentValue']
 
@@ -80,19 +95,24 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, marketCap, 
         + eq.presentValue(CFO=row['PresentValue4'], WACC=row['WACC'], Year=5), axis=1)
     
     df_generated_sample['TerminalValue'] = df_generated_sample.apply(
-        lambda row: eq.tVal(LYCFO=row['PresentValue4'], TGR=row.iloc[8], WACC=row['WACC']), axis=1)
+        lambda row: eq.tVal(LYCFO=row['PresentValue4'], TGR=row.iloc[8], 
+                            WACC=row['WACC']), axis=1)
     
     df_generated_sample['PresentOfTerminal'] = df_generated_sample.apply(
-        lambda row: eq.presentTerminalValue(tVal=row['TerminalValue'], WACC=row['WACC'], lYear=5), axis=1)
+        lambda row: eq.presentTerminalValue(tVal=row['TerminalValue'], 
+                                            WACC=row['WACC'], lYear=5), axis=1)
     
     df_generated_sample['EnterpriseValue'] = df_generated_sample.apply(
-        lambda row: eq.enVal(presentValueSum=row['PresentValueSum'], presentTerminalValue=row['PresentOfTerminal']), axis=1)
+        lambda row: eq.enVal(presentValueSum=row['PresentValueSum'], 
+                             presentTerminalValue=row['PresentOfTerminal']), axis=1)
     
     df_generated_sample['EquityValue'] = df_generated_sample.apply(
-        lambda row: eq.eVal(enVal=row['EnterpriseValue'], Cash=row.iloc[9], Debt=row.iloc[3]), axis=1)
+        lambda row: eq.eVal(enVal=row['EnterpriseValue'], Cash=row.iloc[9], 
+                            Debt=row.iloc[3]), axis=1)
     
     df_generated_sample['ImpliedSharePrice'] = df_generated_sample.apply(
-        lambda row: eq.sharePriceImpl(eVal=row['EquityValue'], shares=row.iloc[11]), axis=1)
+        lambda row: eq.sharePriceImpl(eVal=row['EquityValue'], 
+                                      shares=row.iloc[11]), axis=1)
     
     return df_generated_sample['ImpliedSharePrice']
 
@@ -119,7 +139,9 @@ def MonteCarlo(tickerData,PerYGrowth):
     CFO = tickerData['CFO']
     TaxRate = tickerData['TaxRate']
    
-    ISPD = MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, marketCap, TaxRate, CostofDebt, PerYGrowth, TargetGrowthRate, cash, CFO, shares)
+    ISPD = MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, 
+                                marketCap, TaxRate, CostofDebt, PerYGrowth, 
+                                TargetGrowthRate, cash, CFO, shares)
 
     q_low = ISPD.quantile(0.005)
     q_hi = ISPD.quantile(0.935)

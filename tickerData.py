@@ -6,13 +6,16 @@ import os
 
 def checkData(tickerData):
     for key in tickerData.keys():
-        if not key == 'tickerSymbol' and not key == 'ticker' and not key == 'reportDate' and str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A':
+        if not key == 'tickerSymbol' and not key == 'ticker' 
+        and not key == 'reportDate' and str(tickerData[key])[0] < 'z' 
+        and str(tickerData[key])[0] > 'A':
             tickerData[key] = 0
 
 class Ticker:
-    def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, debt=0, cash=0, shares=0, 
-                 CFO=0, TaxRate=0, PE = 0, marketCap = 0, enterpriseValue = 0, 
-                 enterpriseToRevenue = 0, enterpriseToEbitda = 0, eps = 0, beta = 0):
+    def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, 
+                 debt=0, cash=0, shares=0, CFO=0, TaxRate=0, PE = 0, 
+                 marketCap = 0, enterpriseValue = 0, enterpriseToRevenue = 0, 
+                 enterpriseToEbitda = 0, eps = 0, beta = 0):
         self.tickerSymbol = tickerSymbol.upper()
         self.ticker = yf.Ticker(self.tickerSymbol)
         tickerInfo = self.ticker.info
@@ -131,10 +134,12 @@ class Ticker:
         self.TaxRate = tickerIncome['Tax Rate For Calcs'].iloc[0]
     
     def getData(self):
-        tickerData =  {'tickerSymbol': self.tickerSymbol, 'ticker' : self.ticker,'revenue': self.revenue,'ebitda' : self.ebitda, 
+        tickerData =  {'tickerSymbol': self.tickerSymbol, 'ticker' : self.ticker,
+                       'revenue': self.revenue,'ebitda' : self.ebitda, 
                 'netIncome' : self.netIncome,'debt' : self.debt,'cash' : self.cash,
-                'shares' : self.shares,'CFO' : self.CFO,'TaxRate' : self.TaxRate,'PE' : self.PE, 
-                'marketCap' : self.marketCap,'enterpriseValue' : self.enterpriseValue, 
+                'shares' : self.shares,'CFO' : self.CFO,'TaxRate' : self.TaxRate,
+                'PE' : self.PE, 'marketCap' : self.marketCap,
+                'enterpriseValue' : self.enterpriseValue, 
                 'enterpriseToRevenue' : self.enterpriseToRevenue, 
                 'enterpriseToEbitda' : self.enterpriseToEbitda,'eps' : self.eps, 
                 'beta' : self.beta, 'reportDate': str(self.reportDate)}

@@ -134,9 +134,13 @@ def generate_comparison_div(toCompData):
     x = 0
     for data in toCompData:
         if x > 0:
-            toCompDiv.append(html.P(str(data[0]) + ":   " + str(data[1]), style={'display': 'inline-block', 'margin-left': '50px'}))
+            toCompDiv.append(html.P(str(data[0]) + ":   " + 
+                                str(data[1]), 
+                                style={'display': 'inline-block', 'margin-left': '50px'}))
         else:
-            toCompDiv.append(html.P(str(data[0]) + ":   " + str(data[1]), style={'display': 'inline-block'}))
+            toCompDiv.append(html.P(
+                str(data[0]) + ":   " + str(data[1]), 
+                style={'display': 'inline-block'}))
             x += 1
     return toCompDiv
 
