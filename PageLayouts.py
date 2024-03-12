@@ -14,18 +14,18 @@ def create_dashboard(dashboard_data):
         ]),
         html.Div([
                 html.P("P/E",style={'display' : 'inline-block','margin-left' : '150px'}),
-                html.P("%0.2f" %dashboard_data['TrailingPE'],style={'float' : 'right','display' : 'inline-block'})
+                html.P(dashboard_data['TrailingPE'],style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
                 html.P("Forward P/E",style={'display' : 'inline-block','margin-left' : '150px'}),
-                html.P("%0.2f" %dashboard_data['ForwardPE'],style={'float' : 'right','display' : 'inline-block'})
+                html.P(dashboard_data['ForwardPE'],style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
                 html.P("Analyst Target",style={'display' : 'inline-block','margin-left' : '150px'}),
                 html.P(dashboard_data['avgAnalystTarget'],style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-            html.P("Thiry Day EMA",style={'display' : 'inline-block', 'margin-left' : '150px'}),
+            html.P("Thirty Day Exponential Moving Average",style={'display' : 'inline-block', 'margin-left' : '150px'}),
             html.P("%0.2f"%dashboard_data['movingAVG'],style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([

@@ -4,9 +4,9 @@ import BudgetBuddies as eq
 import plotly.graph_objects as go
 from tickerData import Ticker
 import numpy as np
-import MonteCarlo as MC
+import MonteCarlo as mc
 import plotly.express as px
-
+import localDatabase as ld
 
 def get_start_end_dates():
     """Get the start and end dates for a date range.
@@ -104,8 +104,14 @@ def get_ticker_info(ticker_data):
     tickerInfo = ticker_data['ticker'].info
     FullName = tickerInfo['longName']
     LastClose = tickerInfo['previousClose']
-    TrailingPE = tickerInfo['trailingPE']
-    ForwardPE = tickerInfo['forwardPE']
+    if 'trailingPE' in tickerInfo.keys():
+        TrailingPE = str("%0.2f" %tickerInfo['trailingPE'])
+    else:
+        TrailingPE = ""
+    if 'forwardPE' in tickerInfo.keys():
+        ForwardPE = str("%0.2f" %tickerInfo['forwardPE'])
+    else:
+        ForwardPE = ""
     avgAnalystTarget = tickerInfo['targetMeanPrice']
     return FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget
 
@@ -172,7 +178,17 @@ def ThirtyDayEMA(df):
     return thiryDayAVG
 
 def getMonteCarlo(tickerData, PerYearGrowth):
-    distribution =  MC.MonteCarlo(tickerData, PerYearGrowth)
+    """Generate histogram based on Monte Carlo simulations
+
+    Args:
+        tickerData (Dict): Dictionary of ticker data.
+        PerYearGrowth (Float): User inputed average per year growth rate 
+
+    Returns:
+        figure: histogram
+        mean: float
+    """
+    distribution =  mc.MonteCarlo(tickerData, PerYearGrowth)
     fig = px.histogram(distribution, nbins=65, title='Monte Carlo Simulation of DCF')
     mean = distribution.mean()
     return {'fig': fig, 'mean': mean}
@@ -181,8 +197,9 @@ def create_dashboard_data(df):
     tickerSymbol = df['Ticker'].iloc[0]
     perYearGrowth = df['PerYearGrowth'].iloc[0]
     compareTickers = df['CompareTickers'].iloc[0]
-
-    ticker = Ticker(tickerSymbol)
+    
+    #ticker = Ticker(tickerSymbol)
+    ticker = ld.createTicker(tickerSymbol)
     start, end = get_start_end_dates()
     tickerData = get_ticker_data(ticker)
     compareTickersList = [Ticker(symbol) for symbol in compareTickers.split(',')]
