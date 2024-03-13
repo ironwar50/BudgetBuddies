@@ -5,13 +5,13 @@ from dotenv import load_dotenv
 import os
 
 def checkData(tickerData):
-    for key in tickerData.keys():
+    for key in tickerData.keys(): #make sure the all numerical data is a number
         if (not key == 'tickerSymbol' and not key == 'ticker' 
         and not key == 'reportDate' and str(tickerData[key])[0] < 'z' 
         and str(tickerData[key])[0] > 'A'):
             tickerData[key] = 0
 
-class Ticker:
+class Ticker: #initialize ticker with at least the ticker symbol
     def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, 
                  debt=0, cash=0, shares=0, CFO=0, TaxRate=0, PE = 0, 
                  marketCap = 0, enterpriseValue = 0, enterpriseToRevenue = 0, 
@@ -33,6 +33,7 @@ class Ticker:
         self.shares = shares
         self.CFO = CFO
         self.TaxRate = TaxRate
+        #grab data from yfinace that is updated frequently.
         if 'trailingPE' in tickerInfo.keys():
             self.PE = tickerInfo['trailingPE']
         elif 'forwardPE' in tickerInfo.keys():
@@ -66,7 +67,7 @@ class Ticker:
         else:
             self.beta = beta
         
-        
+    #fills out data from database    
     def updateFromDatabase(self, revenue, ebitda, netIncome, debt, cash, shares, 
                  CFO, TaxRate):
         self.revenue = revenue
@@ -77,18 +78,21 @@ class Ticker:
         self.shares = shares
         self.CFO = CFO
         self.TaxRate = TaxRate
-
+    #pulls new feed from alpha vantage api and do sentiment analysis
     def sentimentAnalysis(self):
         load_dotenv()
         alpha_vantage_key = os.getenv('ALPHA_VANTAGE_KEY')
         symbol = self.ticker.info['symbol'].upper().strip()
+        #get data from alpha vantage
         url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, alpha_vantage_key)
         r = requests.get(url)
-        data = r.json()
+        data = r.json() #store json 
         sentimentTotal = 0
-        for feed in data['feed']:
+        #goes through every article and grabbs sentiment rating
+        #based own rating construct score to determine sentiment
+        for feed in data['feed']: 
             for sentiment in feed['ticker_sentiment']:
-                if sentiment['ticker'] == symbol:
+                if sentiment['ticker'] == symbol: 
                     if sentiment['ticker_sentiment_label'] == "Bearish":
                         sentimentTotal -= 2
                     elif sentiment['ticker_sentiment_label'] == 'Somewhat-Bearish':
@@ -103,7 +107,7 @@ class Ticker:
             return 'Bearish'
         return 'Neutral'
         
-    def pullData(self):
+    def pullData(self): #grabs all necessary data from yfinance
         ticker = self.ticker
         tickerIncome = ticker.quarterly_income_stmt 
         tickerIncome = tickerIncome.transpose()
@@ -139,7 +143,7 @@ class Ticker:
         self.CFO = cfo
         self.TaxRate = tickerIncome['Tax Rate For Calcs'].iloc[0]
     
-    def getData(self):
+    def getData(self): #return dictionary of data
         tickerData =  {'tickerSymbol': self.tickerSymbol, 'ticker' : self.ticker,
                        'revenue': self.revenue,'ebitda' : self.ebitda, 
                 'netIncome' : self.netIncome,'debt' : self.debt,'cash' : self.cash,
