@@ -58,6 +58,7 @@ def checkDate(newDate, tickerSymbol)->bool:
 
 #create new ticker from database or by pulling data based on the checkdate function
 #if date doesn't match or ticker not in database add data to database. 
+#Return -1 if ticker not found
 def createTicker(tickerSymbol):
     create_ticker_data_table()
     ticker = Ticker(tickerSymbol)

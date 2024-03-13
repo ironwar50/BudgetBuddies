@@ -28,7 +28,8 @@ def create_dashboard(dashboard_data):
                        style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-                html.P("EPS",style={'display' : 'inline-block','margin-left' : '150px'}),
+                html.P("EPS",style={'display' : 'inline-block',
+                                    'margin-left' : '150px'}),
                 html.P(dashboard_data['eps'],
                        style={'float' : 'right','display' : 'inline-block'})
         ]),
@@ -99,13 +100,15 @@ def create_dashboard(dashboard_data):
         ],style={'textAlign' : 'center'})
         
 
-    ],style={'textAlign' : 'top' ,'width' : '45%', 'display' : 'inline-block', 'margin-left' : '50px'}),
+    ],style={'textAlign' : 'top' ,'width' : '45%', 
+             'display' : 'inline-block', 'margin-left' : '50px'}),
     html.Div([
         dcc.Graph(figure=dashboard_data['fig']),
         dcc.Graph(figure=dashboard_data['monteCarloFig']),
          html.P("Mean: "+str("%0.2f" %dashboard_data['monteCarloMean']),
                 style={'textAlign' : 'center'})
-    ],style={ 'width' : '45%', 'display' : 'inline-block', 'float' : 'right', 'margin-right' : '50px'}),
+    ],style={ 'width' : '45%', 'display' : 'inline-block', 
+             'float' : 'right', 'margin-right' : '50px'}),
 ])
 
 
@@ -117,21 +120,30 @@ def upload_data_layout():
     """
     return html.Div([
         html.Div(className='header', children=[
-            html.H1(className='header-title', children="BudgetBuddies Market Analysis Tool"),
-            html.P(className='header-description', children="Welcome to the BudgetBuddies Market Analysis Tool. Analyze historical stock data and trends."),
+            html.H1(className='header-title', 
+                    children="BudgetBuddies Market Analysis Tool"),
+            html.P(className='header-description', 
+                   children="Welcome to the BudgetBuddies Market Analysis Tool. Analyze historical stock data and trends."),
         ]),
         html.Div(className='wrapper', children=[
             html.Div(className='menu-item', children=[
-                html.Label(className='menu-title', children="Enter Stock Ticker Symbol:"),
-                dcc.Input(id="ticker-input", type="text", placeholder="Ticker Symbol", className='ticker-input'),
+                html.Label(className='menu-title', 
+                           children="Enter Stock Ticker Symbol:"),
+                dcc.Input(id="ticker-input", type="text", 
+                          placeholder="Ticker Symbol", className='ticker-input'),
             ]),
             html.Div(className='menu-item', children=[
                 html.Label(className='menu-title', children="Enter Per Year Growth:"),
-                dcc.Input(id="per-year-growth-input", type="number", placeholder=0.25, className='ticker-input', min=0, max=1, step=0.05),
+                dcc.Input(id="per-year-growth-input", type="number", 
+                          placeholder=0.25, className='ticker-input', 
+                          min=0, max=1, step=0.01),
             ]),
             html.Div(className='menu-item', children=[
-                html.Label(className='menu-title', children="Enter Additional Stock Ticker Symbols to Compare Against (Seperate By Comma):"),
-                dcc.Input(id="compare-tickers-input", type="text", placeholder="MSFT,AAPL,NVDA" ,className='space-between'),
+                html.Label(className='menu-title', 
+                children="Enter Additional Stock Ticker Symbols to Compare Against (Seperate By Comma):"),
+                dcc.Input(id="compare-tickers-input", 
+                          type="text", placeholder="MSFT,AAPL,NVDA" ,
+                          className='space-between'),
             ]),
             html.Button('Analyze', id='analyze-button', className='analyze-button'),
             html.Div(id='hidden-div', style={'display': 'none'})

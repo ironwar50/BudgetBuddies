@@ -16,7 +16,8 @@ home_layout = html.Div(children=[html.H1(children="This is our Home page")])
 def get_upload_layout(error=False):
     alerts = html.Div()
     if error:
-        alerts = html.Div(dbc.Alert("Invalid Ticker", color="warning"),style={'text-align': 'center'})
+        alerts = html.Div(dbc.Alert("Invalid Ticker", color="warning"),
+                          style={'text-align': 'center'})
     return html.Div(children=[alerts,pl.upload_data_layout()])
 
 

@@ -7,7 +7,6 @@ import numpy as np
 import MonteCarlo as mc
 import plotly.express as px
 import localDatabase as ld
-import PageLayouts as pl
 
 def get_start_end_dates():
     """Get the start and end dates for a date range.
@@ -44,7 +43,10 @@ def get_comparison_data(toComp):
     for comp in toComp:
         compData = comp.getData()
         tick = compData['ticker']
-        temp = (tick.info['symbol'], tick.info['previousClose'])
+        try:
+            temp = (tick.info['symbol'], tick.info['previousClose'])
+        except KeyError:
+            return -1
         toCompData.append(temp)
     return toCompData
 
@@ -194,7 +196,7 @@ def getMonteCarlo(tickerData, PerYearGrowth):
         mean: float
     """
     distribution =  mc.MonteCarlo(tickerData, PerYearGrowth)
-    fig = px.histogram(distribution, nbins=65, title='Monte Carlo Simulation of DCF')
+    fig = px.histogram(distribution, nbins=75, title='Monte Carlo Simulation of DCF')
     mean = distribution.mean()
     return {'fig': fig, 'mean': mean}
 
@@ -211,6 +213,8 @@ def create_dashboard_data(df):
     tickerData = get_ticker_data(ticker)
     compareTickersList = [Ticker(symbol) for symbol in compareTickers.split(',')]
     toCompData = get_comparison_data(compareTickersList)
+    if toCompData == -1:
+        return{'error': True}
     df = get_dataframe(tickerData, start, end)
     fig = create_candlestick_figure(df)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)

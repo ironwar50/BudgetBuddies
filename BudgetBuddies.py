@@ -28,9 +28,12 @@ def TradeComps(toComp, tickerData):
     revNum = 0
     ebitdaNum = 0
     netIncNum = 0
-    for tick in toComp: 
+    for tick in toComp: #Get data on each company being compared to.  
         tick.pullData()
         tickData = tick.getData()
+        #Check that there is the value aren't zero.
+        #If there is a value that is missing don't count
+        #that company to the multiple. 
         if tickData['enterpriseValue'] == 0:
             EV = eq.enterprise_value(
                     tickData['marketCap'],tickData['debt'],tickData['cash'])
@@ -51,9 +54,11 @@ def TradeComps(toComp, tickerData):
         if tickData['PE'] > 0: 
             AVG_PE_ratio += tickData['PE']
             netIncNum+=1
-    AVG_rev_multi /= revNum
+    #get the multiple by divinding by the number of companies used.
+    AVG_rev_multi /= revNum 
     AVG_EBITDA_multi /= ebitdaNum
     AVG_PE_ratio /= netIncNum
+    #caclulatet each share price and get avgerage
     revenue_SharePrice = eq.impliedSharePriceRevenue(
             eq.impliedValueRevenue(eq.implied_ev_from_revenue(
                 AVG_rev_multi,tickerData['revenue']),tickerData['cash'],
@@ -85,24 +90,32 @@ def DiscountedCashFlow(tickerData,PerYGrowth):
     shares = tickerData['shares']
     marketCap = tickerData['marketCap']
     risk_free_rate = ten_year_treasury_rate.iloc[-1]
+    #These data points are hard coded based on what may be 
+    #comonly expected from these values. 
     TargetGrowthRate = .03
     ExpectedReturn = .08
     CostofDebt = .03
+    #Preliminary calculation to include in WACC
     EquityCost = eq.equityCost(tickerData['beta'], ExpectedReturn, risk_free_rate)
     EquityPercent = eq.equityPercent(marketCap + debt, debt)
     DebtPercent = eq.debtPercent(debt,marketCap+debt)
-    wacc = eq.WACC(EquityPercent,EquityCost,DebtPercent,CostofDebt,tickerData['TaxRate'])
+    wacc = eq.WACC(EquityPercent,EquityCost,DebtPercent,
+                   CostofDebt,tickerData['TaxRate'])
+    #Begin calculating CFO growth forcast and discounting to present
     presentValueSum = eq.presentValue(tickerData['CFO'],wacc,1)
     futureCFO = []
     temp = tickerData['CFO']
     count = 2
+    #Projects four years into the future
     for i in range(4):
         temp *= (1 + PerYGrowth)
         futureCFO.append(temp)
         presentValueSum += eq.presentValue(temp,wacc,count)
         count+=1
+    #Use final forcasted CFO to get terminal value then discount for present value
     terminalValue = eq.tVal(futureCFO[3],TargetGrowthRate,wacc)
     PresentOfTerminal = eq.presentTerminalValue(terminalValue,wacc,5)
+    #Take present of terminal to get to equity value then get share price
     EnterpriseValue = eq.enVal(presentValueSum,PresentOfTerminal)
     EquityValue = eq.eVal(EnterpriseValue,cash,debt)
     ImpliedSharePrice = eq.sharePriceImpl(EquityValue, shares)
@@ -127,8 +140,10 @@ def main():
     print("Average Share Price: ", TradeCompPrices['average_SharePrice'])
     print()
     print("--Discounted Cash Flow--")
-    print("Discounted Cash Flow Implied Share Price: ", DiscountedCashFlow(tickerData,PerYGrowth)['ImpliedSharePrice'])
-    print("Real Share Price:", tickerData['ticker'].info['regularMarketPreviousClose'])
+    print("Discounted Cash Flow Implied Share Price: ", 
+          DiscountedCashFlow(tickerData,PerYGrowth)['ImpliedSharePrice'])
+    print("Real Share Price:", 
+          tickerData['ticker'].info['regularMarketPreviousClose'])
 
 if __name__ == "__main__":
     main()
