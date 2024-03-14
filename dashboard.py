@@ -200,6 +200,15 @@ def getMonteCarlo(tickerData, PerYearGrowth):
     mean = distribution.mean()
     return {'fig': fig, 'mean': mean}
 
+def create_comp_tickers(tickerSymbols):
+    compTickers = []
+    for ticker in tickerSymbols:
+        temp = ld.createTicker(ticker)
+        if ticker == -1: 
+            return -1
+        compTickers.append(temp)
+    return compTickers
+
 def create_dashboard_data(df):
     tickerSymbol = df['Ticker'].iloc[0]
     perYearGrowth = df['PerYearGrowth'].iloc[0]
@@ -210,11 +219,11 @@ def create_dashboard_data(df):
     if ticker == -1: #check if there's been an error with finding ticker
         return{'error': True}
     start, end = get_start_end_dates()
-    tickerData = get_ticker_data(ticker)
-    compareTickersList = [Ticker(symbol) for symbol in compareTickers.split(',')]
-    toCompData = get_comparison_data(compareTickersList)
-    if toCompData == -1: #check if there's been an error with finding a ticker
+    tickerData = get_ticker_data(ticker)   
+    compareTickersList = create_comp_tickers(compareTickers.split(','))
+    if compareTickersList == -1: #check if there's been an error with finding a ticker
         return{'error': True}
+    toCompData = get_comparison_data(compareTickersList)
     df = get_dataframe(tickerData, start, end)
     fig = create_candlestick_figure(df)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)

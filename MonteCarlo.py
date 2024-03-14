@@ -57,7 +57,6 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt,
     R = ot.CorrelationMatrix(len(variable_dist))
     copula = ot.NormalCopula(R)
     BuiltComposedDistribution = ot.ComposedDistribution(variable_dist, copula)
-
     generated_sample = BuiltComposedDistribution.getSample(100000)
     df_generated_sample = pd.DataFrame.from_records(generated_sample, 
                                                     columns=variable_names)

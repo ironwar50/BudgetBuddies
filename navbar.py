@@ -9,10 +9,6 @@ csv_file = 'user_input.csv'
 
 home_layout = html.Div(children=[html.H1(children="This is our Home page")])
 
-'''data_upload_layout = html.Div(children=[
-    pl.upload_data_layout()
-])'''
-
 def get_upload_layout(error=False):
     alerts = html.Div()
     if error:

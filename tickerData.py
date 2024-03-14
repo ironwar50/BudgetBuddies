@@ -142,7 +142,7 @@ class Ticker: #initialize ticker with at least the ticker symbol
         self.shares = tickerInfo['sharesOutstanding'] 
         self.CFO = cfo
         self.TaxRate = tickerIncome['Tax Rate For Calcs'].iloc[0]
-    
+      
     def getData(self): #return dictionary of data
         tickerData =  {'tickerSymbol': self.tickerSymbol, 'ticker' : self.ticker,
                        'revenue': self.revenue,'ebitda' : self.ebitda, 
