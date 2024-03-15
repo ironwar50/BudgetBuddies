@@ -115,11 +115,12 @@ class Ticker: #initialize ticker with at least the ticker symbol
         tickerCashFlow = ticker.quarterly_cash_flow.transpose()
         tickerInfo = ticker.info
         self.marketCap = ticker.info['marketCap']
+
         revenue = 0
         ebitda = 0
         netIncome = 0 
         cfo = 0
-        for i in range(4):                                                                                                      
+        for i in range(4): 
             revenue += tickerIncome['Total Revenue'].iloc[i]
             ebitda += tickerIncome['EBITDA'].iloc[i]
             netIncome += tickerIncome['Net Income'].iloc[i] 

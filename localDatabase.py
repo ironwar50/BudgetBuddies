@@ -1,6 +1,5 @@
 import sqlite3 as sql
 from tickerData import Ticker
-import pandas as pd
 
 def create_ticker_data_table():
     with sql.connect('budgetbuddies.db') as conn:

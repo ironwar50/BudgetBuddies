@@ -46,7 +46,7 @@ def create_dashboard(dashboard_data):
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-            html.P("Annualized Log Rerturn",
+            html.P("Annualized Log Return",
                    style={'display' : 'inline-block', 'margin-left' : '150px'}),
             html.P(str("%0.2f"%dashboard_data['aLogReturn'])+"%",
                    style={'float' : 'right','display' : 'inline-block'})
