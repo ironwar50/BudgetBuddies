@@ -63,7 +63,7 @@ def create_dashboard(dashboard_data):
         html.Div([
             html.P("Current Cash Flow",
                    style={'display' : 'inline-block','margin-left' : '150px'}),
-            html.P(dashboard_data['DCF_ImpliedPrice']['FreeCashFlow'],
+            html.P(f"{dashboard_data['DCF_ImpliedPrice']['FreeCashFlow']:,}",
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
@@ -75,7 +75,7 @@ def create_dashboard(dashboard_data):
         html.Div([
             html.P("Year Five Cash Flow",
                    style={'display' : 'inline-block', 'margin-left' : '150px'}),
-            html.P("%0.2f" %dashboard_data['DCF_ImpliedPrice']['LastYearCashFlow'],
+            html.P(f"{dashboard_data['DCF_ImpliedPrice']['LastYearCashFlow']:,}",
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
