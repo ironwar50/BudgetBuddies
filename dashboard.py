@@ -179,10 +179,10 @@ def ThirtyDayEMA(df):
     Returns:
         float: EMA
     """
-    thiryDay = df['Close'].tail(30)
-    thiryDay = thiryDay.iloc[::-1]
-    thiryDayAVG = thiryDay.ewm(span=30, adjust=False).mean().sum()/30
-    return thiryDayAVG
+    thirtyDay = df['Close'].tail(30)
+    thirtyDay = thirtyDay.iloc[::-1]
+    thirtyDayAVG = thirtyDay.ewm(span=30, adjust=False).mean().sum()/30
+    return thirtyDayAVG
 
 def getMonteCarlo(tickerData, PerYearGrowth):
     """Generate histogram based on Monte Carlo simulations
@@ -214,19 +214,15 @@ def create_dashboard_data(df):
     perYearGrowth = df['PerYearGrowth'].iloc[0]
     compareTickers = df['CompareTickers'].iloc[0]
     
-    #ticker = Ticker(tickerSymbol)
     ticker = ld.createTicker(tickerSymbol)
-    if ticker == -1: #check if there's been an error with finding ticker
-        return{'error': True}
+    #check if there's been an error with finding ticker
+    if ticker == -1: return{'error': True}
     start, end = get_start_end_dates()
     tickerData = get_ticker_data(ticker)   
     compareTickersList = create_comp_tickers(compareTickers.split(','))
-    if compareTickersList == -1: #check if there's been an error with finding a ticker
-        return{'error': True}
-    print(compareTickersList)
+    if compareTickersList == -1: return{'error': True}
     toCompData = get_comparison_data(compareTickersList)
-    if toCompData == -1:
-        return{'error': True}
+    if toCompData == -1: return{'error': True}
     df = get_dataframe(tickerData, start, end)
     fig = create_candlestick_figure(df)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)
