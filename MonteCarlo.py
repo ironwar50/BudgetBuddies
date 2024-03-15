@@ -12,7 +12,6 @@ import os
 load_dotenv()
 
 fred_api_key = os.getenv('FRED_API_KEY')
-
 fred = Fred(api_key=fred_api_key)
 ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
 

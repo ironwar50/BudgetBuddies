@@ -10,6 +10,12 @@ csv_file = 'user_input.csv'
 home_layout = html.Div(children=[html.H1(children="This is our Home page")])
 
 def get_upload_layout(error=False):
+    """
+    Check for errors. Create alert add to upload_layout. 
+    Retrieve upload page. 
+
+    Return upload layout    
+    """
     alerts = html.Div()
     if error:
         alerts = html.Div(dbc.Alert("Invalid Ticker", color="warning"),
@@ -22,7 +28,8 @@ def get_dashboard_layout():
     Read saved data from the csv file and use that to 
     retrieve the data that will be used to create the dashboard.
 
-    Return the dashboard that will be created.
+    Return the dashboard that will be created if no error.
+    If error return back to upload_layout. 
     """
     df = db.create_dashboard_data(pd.read_csv(csv_file))
     if df['error']:
