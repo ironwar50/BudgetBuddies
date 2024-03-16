@@ -30,7 +30,6 @@ def TradeComps(toComp, tickerData):
     netIncNum = 0
     
     for tick in toComp: #Get data on each company being compared to. 
-        print(tick) 
         tickData = tick.getData()
         #Check that there is the value aren't zero.
         #If there is a value that is missing don't count
