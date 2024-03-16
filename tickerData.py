@@ -5,13 +5,13 @@ from dotenv import load_dotenv
 import os
 
 def checkData(tickerData):
-    for key in tickerData.keys():
+    for key in tickerData.keys(): #make sure the all numerical data is a number
         if (not key == 'tickerSymbol' and not key == 'ticker' 
         and not key == 'reportDate' and str(tickerData[key])[0] < 'z' 
         and str(tickerData[key])[0] > 'A'):
             tickerData[key] = 0
 
-class Ticker:
+class Ticker: #initialize ticker with at least the ticker symbol
     def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, 
                  debt=0, cash=0, shares=0, CFO=0, TaxRate=0, PE = 0, 
                  marketCap = 0, enterpriseValue = 0, enterpriseToRevenue = 0, 
@@ -33,6 +33,7 @@ class Ticker:
         self.shares = shares
         self.CFO = CFO
         self.TaxRate = TaxRate
+        #grab data from yfinace that is updated frequently.
         if 'trailingPE' in tickerInfo.keys():
             self.PE = tickerInfo['trailingPE']
         elif 'forwardPE' in tickerInfo.keys():
@@ -66,7 +67,7 @@ class Ticker:
         else:
             self.beta = beta
         
-        
+    #fills out data from database    
     def updateFromDatabase(self, revenue, ebitda, netIncome, debt, cash, shares, 
                  CFO, TaxRate):
         self.revenue = revenue
@@ -77,33 +78,38 @@ class Ticker:
         self.shares = shares
         self.CFO = CFO
         self.TaxRate = TaxRate
-
+    #pulls new feed from alpha vantage api and do sentiment analysis
     def sentimentAnalysis(self):
         load_dotenv()
         alpha_vantage_key = os.getenv('ALPHA_VANTAGE_KEY')
         symbol = self.ticker.info['symbol'].upper().strip()
+        #get data from alpha vantage
         url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, alpha_vantage_key)
         r = requests.get(url)
-        data = r.json()
-        sentimentTotal = 0
-        for feed in data['feed']:
+        data = r.json() #store json 
+        bearish = 0
+        somewhatBearish = 0
+        somewhatBullish = 0
+        Bullish = 0
+        #goes through every article and grabbs sentiment rating
+        #based own rating construct score to determine sentiment
+        for feed in data['feed']: 
             for sentiment in feed['ticker_sentiment']:
-                if sentiment['ticker'] == symbol:
+                if sentiment['ticker'] == symbol: 
                     if sentiment['ticker_sentiment_label'] == "Bearish":
-                        sentimentTotal -= 2
+                        bearish += 1
                     elif sentiment['ticker_sentiment_label'] == 'Somewhat-Bearish':
-                        sentimentTotal -= 1
+                        somewhatBearish += 1
                     elif sentiment['ticker_sentiment_label'] == 'Somewhat-Bullish':
-                        sentimentTotal += 1
+                        somewhatBullish += 1
                     elif sentiment['ticker_sentiment_label'] == 'Bullish':
-                        sentimentTotal += 2
-        if(sentimentTotal > 5):
-            return 'Bullish'
-        elif(sentimentTotal < -5):
-            return 'Bearish'
-        return 'Neutral'
+                        Bullish += 1
+       
+        return {'Bearish' : bearish, 'Somewhat Bearish': somewhatBearish,
+                'Somewhat Bullish' : somewhatBullish, 'Bullish' : Bullish}
+    
         
-    def pullData(self):
+    def pullData(self): #grabs all necessary data from yfinance
         ticker = self.ticker
         tickerIncome = ticker.quarterly_income_stmt 
         tickerIncome = tickerIncome.transpose()
@@ -111,11 +117,12 @@ class Ticker:
         tickerCashFlow = ticker.quarterly_cash_flow.transpose()
         tickerInfo = ticker.info
         self.marketCap = ticker.info['marketCap']
+
         revenue = 0
         ebitda = 0
         netIncome = 0 
         cfo = 0
-        for i in range(4):                                                                                                      
+        for i in range(4): 
             revenue += tickerIncome['Total Revenue'].iloc[i]
             ebitda += tickerIncome['EBITDA'].iloc[i]
             netIncome += tickerIncome['Net Income'].iloc[i] 
@@ -138,8 +145,8 @@ class Ticker:
         self.shares = tickerInfo['sharesOutstanding'] 
         self.CFO = cfo
         self.TaxRate = tickerIncome['Tax Rate For Calcs'].iloc[0]
-    
-    def getData(self):
+      
+    def getData(self): #return dictionary of data
         tickerData =  {'tickerSymbol': self.tickerSymbol, 'ticker' : self.ticker,
                        'revenue': self.revenue,'ebitda' : self.ebitda, 
                 'netIncome' : self.netIncome,'debt' : self.debt,'cash' : self.cash,

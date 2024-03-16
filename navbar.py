@@ -7,16 +7,20 @@ import dash_bootstrap_components as dbc
 
 csv_file = 'user_input.csv'
 
-home_layout = html.Div(children=[html.H1(children="This is our Home page")])
-
-'''data_upload_layout = html.Div(children=[
-    pl.upload_data_layout()
-])'''
+#home_layout = html.Div(children=[html.H1(children="This is our Home page")])
+home_layout = pl.create_homepage() 
 
 def get_upload_layout(error=False):
+    """
+    Check for errors. Create alert add to upload_layout. 
+    Retrieve upload page. 
+
+    Return upload layout    
+    """
     alerts = html.Div()
     if error:
-        alerts = html.Div(dbc.Alert("Invalid Ticker", color="warning"),style={'text-align': 'center'})
+        alerts = html.Div(dbc.Alert("Invalid Ticker", color="warning"),
+                          style={'text-align': 'center'})
     return html.Div(children=[alerts,pl.upload_data_layout()])
 
 
@@ -25,7 +29,8 @@ def get_dashboard_layout():
     Read saved data from the csv file and use that to 
     retrieve the data that will be used to create the dashboard.
 
-    Return the dashboard that will be created.
+    Return the dashboard that will be created if no error.
+    If error return back to upload_layout. 
     """
     df = db.create_dashboard_data(pd.read_csv(csv_file))
     if df['error']:

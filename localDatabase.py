@@ -1,6 +1,5 @@
 import sqlite3 as sql
 from tickerData import Ticker
-import pandas as pd
 
 def create_ticker_data_table():
     with sql.connect('budgetbuddies.db') as conn:
@@ -32,18 +31,20 @@ def insertFromTicker(ticker: Ticker):
             cursor.execute("""Insert Into TickerData (CurrentReportDate,Ticker,
                         Revenue,NetIncome,EBITDA,Debt,Cash,Shares,CFO,TaxRate)"""
                     "Values (?,?,?,?,?,?,?,?,?,?)",(tickerData['reportDate'], tickerData['tickerSymbol'],
-                                                    tickerData['revenue'], tickerData['netIncome'], tickerData['ebitda'],
-                                                    tickerData['debt'],tickerData['cash'], tickerData['shares'], 
+                                                    tickerData['revenue'], tickerData['netIncome'], 
+                                                    tickerData['ebitda'],tickerData['debt'],
+                                                    tickerData['cash'], tickerData['shares'], 
                                                     tickerData['CFO'], tickerData['TaxRate']))
         else:
             sql_update_query = ("""UPDATE TickerData
                                 SET CurrentReportDate=?, Revenue=?, NetIncome=?, EBITDA=?,
                                 Debt=?, Cash=?, Shares=?, CFO=?, TaxRate=? 
                                 WHERE Ticker=?""")
-            cursor.execute(sql_update_query, [tickerData['reportDate'], tickerData['revenue'],tickerData['netIncome'],
-                                              tickerData['ebitda'], tickerData['debt'],tickerData['cash'],
-                                              tickerData['shares'],tickerData['CFO'],tickerData['TaxRate'],
-                                              tickerData['tickerSymbol']])
+            cursor.execute(sql_update_query, [tickerData['reportDate'], tickerData['revenue'],
+                                              tickerData['netIncome'],tickerData['ebitda'], 
+                                              tickerData['debt'],tickerData['cash'],
+                                              tickerData['shares'],tickerData['CFO'],
+                                              tickerData['TaxRate'],tickerData['tickerSymbol']])
 #check if date newly pulled matches stored data
 def checkDate(newDate, tickerSymbol)->bool:
     with sql.connect('budgetbuddies.db') as conn:
@@ -58,6 +59,7 @@ def checkDate(newDate, tickerSymbol)->bool:
 
 #create new ticker from database or by pulling data based on the checkdate function
 #if date doesn't match or ticker not in database add data to database. 
+#Return -1 if ticker not found
 def createTicker(tickerSymbol):
     create_ticker_data_table()
     ticker = Ticker(tickerSymbol)
@@ -71,8 +73,9 @@ def createTicker(tickerSymbol):
             sql_select_query = """select * from TickerData where Ticker = ?"""
             cursor.execute(sql_select_query, [tickerSymbol])
             tickerDB = cursor.fetchone()
-            ticker.updateFromDatabase(tickerDB['Revenue'], tickerDB['EBITDA'],tickerDB['NetIncome'], 
-                                      tickerDB['Debt'], tickerDB['Cash'], tickerDB['Shares'],
+            ticker.updateFromDatabase(tickerDB['Revenue'], tickerDB['EBITDA'],
+                                      tickerDB['NetIncome'], tickerDB['Debt'], 
+                                      tickerDB['Cash'], tickerDB['Shares'],
                                       tickerDB['CFO'],  tickerDB['TaxRate'])
     else:
         ticker.pullData()

@@ -7,7 +7,7 @@ import numpy as np
 import MonteCarlo as mc
 import plotly.express as px
 import localDatabase as ld
-import PageLayouts as pl
+import pandas as pd
 
 def get_start_end_dates():
     """Get the start and end dates for a date range.
@@ -44,7 +44,10 @@ def get_comparison_data(toComp):
     for comp in toComp:
         compData = comp.getData()
         tick = compData['ticker']
-        temp = (tick.info['symbol'], tick.info['previousClose'])
+        try: #if tick.info is empty it will throw KeyError
+            temp = (tick.info['symbol'], tick.info['previousClose'])
+        except KeyError: #if KeyError thrown return -1 to alert of error
+            return -1
         toCompData.append(temp)
     return toCompData
 
@@ -87,10 +90,11 @@ def create_candlestick_figure(df):
                 dict(count=1, label="YTD", step="year", stepmode="todate"),
                 dict(count=1, label="1Y", step="year", stepmode="backward"),
                 dict(step="all")
-            ])
+            ]), font=dict(color="#343A40")
         )
     )
-    fig.update_layout(title='Candlestick Chart', xaxis_title='Date', yaxis_title='Price')
+    fig.update_layout(title='Candlestick Chart', xaxis_title=None, yaxis_title='Price', 
+                      plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40", font=dict(color="#F7F7F7"))
     return fig
 
 def get_ticker_info(ticker_data):
@@ -154,7 +158,11 @@ def getSentimentAnalysis(ticker: Ticker):
     Returns:
         string: Bullish, Neutral, Bearish.
     """
-    return ticker.sentimentAnalysis()
+    df = pd.DataFrame([ticker.sentimentAnalysis()]) 
+    fig = px.bar(df,orientation='h', height=125, width=800, color_discrete_sequence = ['maroon', 'lightcoral', 'mediumseagreen', 'forestgreen'])
+    fig.update_layout(legend_title=None, yaxis = dict(visible=False), xaxis_title = None, 
+                      margin=dict(l=0,t=0,b=10), paper_bgcolor="#F7F7F7", plot_bgcolor="#F7F7F7")
+    return fig
 
 def annualLogReturn(df):
     """Calculate log rate of return over three years
@@ -177,10 +185,10 @@ def ThirtyDayEMA(df):
     Returns:
         float: EMA
     """
-    thiryDay = df['Close'].tail(30)
-    thiryDay = thiryDay.iloc[::-1]
-    thiryDayAVG = thiryDay.ewm(span=30, adjust=False).mean().sum()/30
-    return thiryDayAVG
+    thirtyDay = df['Close'].tail(30)
+    thirtyDay = thirtyDay.iloc[::-1]
+    thirtyDayAVG = thirtyDay.ewm(span=30, adjust=False).mean().sum()/30
+    return thirtyDayAVG
 
 def getMonteCarlo(tickerData, PerYearGrowth):
     """Generate histogram based on Monte Carlo simulations
@@ -194,23 +202,34 @@ def getMonteCarlo(tickerData, PerYearGrowth):
         mean: float
     """
     distribution =  mc.MonteCarlo(tickerData, PerYearGrowth)
-    fig = px.histogram(distribution, nbins=65, title='Monte Carlo Simulation of DCF')
+    fig = px.histogram(distribution, nbins=75, title='Monte Carlo Simulation of DCF', color_discrete_sequence = ['maroon'])
+    fig.update_layout(legend_title=None, plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40",font=dict(color="#F7F7F7"))
     mean = distribution.mean()
     return {'fig': fig, 'mean': mean}
+
+def create_comp_tickers(tickerSymbols):
+    compTickers = []
+    for ticker in tickerSymbols:
+        temp = ld.createTicker(ticker)
+        if temp == -1: 
+            return -1
+        compTickers.append(temp)
+    return compTickers
 
 def create_dashboard_data(df):
     tickerSymbol = df['Ticker'].iloc[0]
     perYearGrowth = df['PerYearGrowth'].iloc[0]
     compareTickers = df['CompareTickers'].iloc[0]
     
-    #ticker = Ticker(tickerSymbol)
     ticker = ld.createTicker(tickerSymbol)
-    if ticker == -1:
-        return{'error': True}
+    #check if there's been an error with finding ticker
+    if ticker == -1: return{'error': True}
     start, end = get_start_end_dates()
-    tickerData = get_ticker_data(ticker)
-    compareTickersList = [Ticker(symbol) for symbol in compareTickers.split(',')]
+    tickerData = get_ticker_data(ticker)   
+    compareTickersList = create_comp_tickers(compareTickers.split(','))
+    if compareTickersList == -1: return{'error': True}
     toCompData = get_comparison_data(compareTickersList)
+    if toCompData == -1: return{'error': True}
     df = get_dataframe(tickerData, start, end)
     fig = create_candlestick_figure(df)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)

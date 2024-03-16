@@ -12,7 +12,6 @@ import os
 load_dotenv()
 
 fred_api_key = os.getenv('FRED_API_KEY')
-
 fred = Fred(api_key=fred_api_key)
 ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
 
@@ -35,18 +34,17 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt,
                          marketCap, TaxRate, CostofDebt, PerYGrowth, 
                          TargetGrowthRate, cash, presentValue, shares):
     beta = ot.Triangular(beta * .9, beta, beta * 1.1)
-    ExpectedReturn = ot.Normal(ExpectedReturn, ExpectedReturn * .2)
-    risk_free_rate = ot.Normal(risk_free_rate, risk_free_rate * .2)
-    debt = ot.Normal(debt, debt * .2)
-    marketCap = ot.Normal(marketCap, marketCap * .2)
-    TaxRate = ot.Normal(TaxRate, TaxRate*.2)
-    CostofDebt = ot.Normal(CostofDebt, CostofDebt*.2)
-    #PerYGrowth = ot.Distribution(ot.SciPyDistribution(scipy.stats.skewnorm(.99, loc=PerYGrowth, scale=PerYGrowth*.2)))
-    PerYGrowth = ot.Normal(PerYGrowth, PerYGrowth*.2)
-    TargetGrowthRate = ot.Normal(TargetGrowthRate, TargetGrowthRate*.2)
-    cash = ot.Normal(cash, cash*.15)
-    presentValue = ot.Normal(presentValue, presentValue*.05)
-    shares = ot.Normal(shares, shares*.05)
+    ExpectedReturn = ot.Normal(ExpectedReturn, ExpectedReturn * .1)
+    risk_free_rate = ot.Normal(risk_free_rate, risk_free_rate * .1)
+    debt = ot.Normal(debt, debt * .1)
+    marketCap = ot.Normal(marketCap, marketCap * .1)
+    TaxRate = ot.Normal(TaxRate, TaxRate*.1)
+    CostofDebt = ot.Normal(CostofDebt, CostofDebt*.1)
+    PerYGrowth = ot.Normal(PerYGrowth, PerYGrowth*.1)
+    TargetGrowthRate = ot.Normal(TargetGrowthRate, TargetGrowthRate*.1)
+    cash = ot.Normal(cash, cash*.1)
+    presentValue = ot.Normal(presentValue, presentValue*.1)
+    shares = ot.Normal(shares, shares*.1)
 
     variable_dist = [beta, ExpectedReturn, risk_free_rate, debt, marketCap, 
                      TaxRate, CostofDebt, PerYGrowth, TargetGrowthRate, cash, 
@@ -58,7 +56,6 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt,
     R = ot.CorrelationMatrix(len(variable_dist))
     copula = ot.NormalCopula(R)
     BuiltComposedDistribution = ot.ComposedDistribution(variable_dist, copula)
-
     generated_sample = BuiltComposedDistribution.getSample(100000)
     df_generated_sample = pd.DataFrame.from_records(generated_sample, 
                                                     columns=variable_names)
@@ -144,7 +141,7 @@ def MonteCarlo(tickerData,PerYGrowth):
                                 TargetGrowthRate, cash, CFO, shares)
 
     q_low = ISPD.quantile(0.005)
-    q_hi = ISPD.quantile(0.935)
+    q_hi = ISPD.quantile(0.99)
 
     df_filtered = ISPD[(ISPD < q_hi) & (ISPD > q_low)]
 

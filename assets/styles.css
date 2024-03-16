@@ -5,7 +5,6 @@ body {
     background-color: #F7F7F7;
 }
 
-
 .ticker-input {
     display: block;
     padding: 8px;
@@ -78,7 +77,7 @@ body {
 }
 
 .header {
-    background-color: #160062;
+    background-color: #343A40;
     height: 8rem;
     padding: 16px 0 0 0;
 }
