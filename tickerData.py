@@ -87,25 +87,27 @@ class Ticker: #initialize ticker with at least the ticker symbol
         url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, alpha_vantage_key)
         r = requests.get(url)
         data = r.json() #store json 
-        sentimentTotal = 0
+        bearish = 0
+        somewhatBearish = 0
+        somewhatBullish = 0
+        Bullish = 0
         #goes through every article and grabbs sentiment rating
         #based own rating construct score to determine sentiment
         for feed in data['feed']: 
             for sentiment in feed['ticker_sentiment']:
                 if sentiment['ticker'] == symbol: 
                     if sentiment['ticker_sentiment_label'] == "Bearish":
-                        sentimentTotal -= 2
+                        bearish += 1
                     elif sentiment['ticker_sentiment_label'] == 'Somewhat-Bearish':
-                        sentimentTotal -= 1
+                        somewhatBearish += 1
                     elif sentiment['ticker_sentiment_label'] == 'Somewhat-Bullish':
-                        sentimentTotal += 1
+                        somewhatBullish += 1
                     elif sentiment['ticker_sentiment_label'] == 'Bullish':
-                        sentimentTotal += 2
-        if(sentimentTotal > 5):
-            return 'Bullish'
-        elif(sentimentTotal < -5):
-            return 'Bearish'
-        return 'Neutral'
+                        Bullish += 1
+       
+        return {'Bearish' : bearish, 'Somewhat Bearish': somewhatBearish,
+                'Somewhat Bullish' : somewhatBullish, 'Bullish' : Bullish}
+    
         
     def pullData(self): #grabs all necessary data from yfinance
         ticker = self.ticker

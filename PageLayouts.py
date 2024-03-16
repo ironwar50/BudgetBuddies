@@ -2,6 +2,31 @@ import dash
 from dash import dcc, html, Input, Output, State, callback
 import pandas as pd 
 
+image_path1 = 'assets/monte_carlo.png'
+image_path2 = 'assets/sentiment_analysis.png'
+
+def create_homepage():
+    return html.Div([
+       html.H1("Automatic Valuation Calculation"),
+       html.H3("Speed up the process of financial modeling"),
+       html.Br(),
+       html.H5("""Intrinsic value will be calculated from the 
+               input of a ticker with a estimated yearly growth"""),
+       html.H5("Enter tickers of competitors for Trade Comps"),
+       html.Br(),
+       html.Div([
+              html.H5("Easy construction \nof Monte Carlo Model", 
+                     style={'margin-right' : '50px', 'display' : 'inline-block'}),
+              html.Img(src=image_path1,style={'display' : 'inline-block'})
+       ]),
+       html.Br(),
+       html.Div([
+              html.H5("Sentiment analysis on the current news", 
+                      style={'margin-right' : '50px', 'display' : 'inline-block'}),
+              html.Img(src=image_path2,style={'display' : 'inline-block'})
+       ]),
+    ],style={'float' : 'center', 'text-align' : 'center'})
+
 def create_dashboard(dashboard_data):
      return html.Div([
     html.Div([
@@ -51,12 +76,10 @@ def create_dashboard(dashboard_data):
             html.P(str("%0.2f"%dashboard_data['aLogReturn'])+"%",
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
-        html.Div([
-            html.P("News Sentiment Analysis",
-                   style={'display' : 'inline-block', 'margin-left' : '150px'}),
-            html.P(dashboard_data['sentimentAnalysis'],
-                   style={'float' : 'right','display' : 'inline-block'})
-        ]),
+        html.P("News Sentiment Analysis",
+                   style={'margin-left' : '150px'}),
+        dcc.Graph(figure=dashboard_data['sentimentAnalysis'], 
+                  style={'margin-left' : '150px'}, ),
         html.Br(),
         html.H2("Discounted Cash Flow",
                 style={'display' : 'inline-block','margin-left' : '150px'}),
@@ -104,10 +127,11 @@ def create_dashboard(dashboard_data):
              'display' : 'inline-block', 'margin-left' : '50px'}),
     html.Div([
         dcc.Graph(figure=dashboard_data['fig']),
+        html.Br(),
         dcc.Graph(figure=dashboard_data['monteCarloFig']),
          html.P("Mean: "+str("%0.2f" %dashboard_data['monteCarloMean']),
                 style={'textAlign' : 'center'})
-    ],style={ 'width' : '45%', 'display' : 'inline-block', 
+    ],style={'width' : '45%', 'display' : 'inline-block', 
              'float' : 'right', 'margin-right' : '50px'}),
 ])
 

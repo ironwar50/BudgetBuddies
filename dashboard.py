@@ -7,6 +7,7 @@ import numpy as np
 import MonteCarlo as mc
 import plotly.express as px
 import localDatabase as ld
+import pandas as pd
 
 def get_start_end_dates():
     """Get the start and end dates for a date range.
@@ -89,10 +90,11 @@ def create_candlestick_figure(df):
                 dict(count=1, label="YTD", step="year", stepmode="todate"),
                 dict(count=1, label="1Y", step="year", stepmode="backward"),
                 dict(step="all")
-            ])
+            ]), font=dict(color="#343A40")
         )
     )
-    fig.update_layout(title='Candlestick Chart', xaxis_title='Date', yaxis_title='Price')
+    fig.update_layout(title='Candlestick Chart', xaxis_title=None, yaxis_title='Price', 
+                      plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40", font=dict(color="#F7F7F7"))
     return fig
 
 def get_ticker_info(ticker_data):
@@ -156,7 +158,13 @@ def getSentimentAnalysis(ticker: Ticker):
     Returns:
         string: Bullish, Neutral, Bearish.
     """
-    return ticker.sentimentAnalysis()
+    #df = pd.DataFrame([ticker.sentimentAnalysis()]) 
+    sentiment = {'Bearish' : 3, 'Somewhat Bearish' : 7, 'Somewhat Bullish' : 25, 'Bullish' : 20}
+    df = pd.DataFrame([sentiment])
+    fig = px.bar(df,orientation='h', height=125, width=800, color_discrete_sequence = ['maroon', 'lightcoral', 'mediumseagreen', 'forestgreen'])
+    fig.update_layout(legend_title=None, yaxis = dict(visible=False), xaxis_title = None, 
+                      margin=dict(l=0,t=0,b=10), paper_bgcolor="#F7F7F7", plot_bgcolor="#F7F7F7")
+    return fig
 
 def annualLogReturn(df):
     """Calculate log rate of return over three years
@@ -196,7 +204,8 @@ def getMonteCarlo(tickerData, PerYearGrowth):
         mean: float
     """
     distribution =  mc.MonteCarlo(tickerData, PerYearGrowth)
-    fig = px.histogram(distribution, nbins=75, title='Monte Carlo Simulation of DCF')
+    fig = px.histogram(distribution, nbins=75, title='Monte Carlo Simulation of DCF', color_discrete_sequence = ['maroon'])
+    fig.update_layout(legend_title=None, plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40",font=dict(color="#F7F7F7"))
     mean = distribution.mean()
     return {'fig': fig, 'mean': mean}
 
