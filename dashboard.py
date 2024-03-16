@@ -225,7 +225,6 @@ def create_dashboard_data(df):
     tickerSymbol = str(df['Ticker'].iloc[0])
     perYearGrowth = df['PerYearGrowth'].iloc[0]
     compareTickers = str(df['CompareTickers'].iloc[0])
-    print(compareTickers)
     if tickerSymbol == '' or np.isnan(perYearGrowth)  or compareTickers == 'nan': return{'error': True}
 
     start_total_time = time.time()
