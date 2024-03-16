@@ -8,34 +8,12 @@ import pandas as pd
 import plotly.express as px
 from dotenv import load_dotenv
 import os
-import time
 
 load_dotenv()
 
 fred_api_key = os.getenv('FRED_API_KEY')
 fred = Fred(api_key=fred_api_key)
 ten_year_treasury_rate = fred.get_series_latest_release('GS10') / 100
-
-def getEquityCost(df_generated_sample):
-    return df_generated_sample.apply(
-        lambda row: eq.equityCost(Beta=row.iloc[0], ExpReturn=row.iloc[1], 
-                                  RiskFreeRate=row.iloc[2]), axis=1)
-
-def getEquityPercent(df_generated_sample):
-    return df_generated_sample.apply(
-        lambda row: eq.equityPercent(eVal=row.iloc[3]+row.iloc[4], 
-                                     Debt=row.iloc[3]), axis=1)
-
-def getDebtPercent(df_generated_sample):
-    return df_generated_sample.apply(
-        lambda row: eq.debtPercent(Debt=row.iloc[3], 
-                                   eVal=row.iloc[4] + row.iloc[3]), axis=1)
-
-def createPresentValues(df_generated_sample):
-    for i in range(4):
-        df_generated_sample['PresentValue{}'.format(i+1)] = df_generated_sample.apply(
-            lambda row: row['PresentValue{}'.format(i)]*(1+row.iloc[7]), axis=1)
-    return df_generated_sample
 
 def meanSTD(list):
     mean = sum(list) / len(list)
