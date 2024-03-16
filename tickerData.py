@@ -3,6 +3,17 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 import os
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+def getIncome(ticker):
+    return ticker.quarterly_income_stmt.transpose()
+def getBalance(ticker):
+    return ticker.quarterly_balance_sheet.transpose()   
+def getInfo(ticker):
+    return ticker.info
+def getCashflow(ticker):
+    return ticker.quarterly_cash_flow.transpose()
 
 def checkData(tickerData):
     for key in tickerData.keys(): #make sure the all numerical data is a number
@@ -111,13 +122,17 @@ class Ticker: #initialize ticker with at least the ticker symbol
         
     def pullData(self): #grabs all necessary data from yfinance
         ticker = self.ticker
-        tickerIncome = ticker.quarterly_income_stmt 
-        tickerIncome = tickerIncome.transpose()
-        tickerBalance = ticker.quarterly_balance_sheet.transpose()                                                              
-        tickerCashFlow = ticker.quarterly_cash_flow.transpose()
-        tickerInfo = ticker.info
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            f_tickerIncome = executor.submit(getIncome, ticker)
+            f_tickerBalance = executor.submit(getBalance, ticker)                                                              
+            f_tickerCashFlow = executor.submit(getCashflow, ticker)
+            f_tickerInfo = executor.submit(getInfo, ticker)
+            tickerIncome = f_tickerIncome.result()
+            tickerBalance = f_tickerBalance.result()                                                              
+            tickerCashFlow = f_tickerCashFlow.result() 
+            tickerInfo = f_tickerInfo.result()
+        
         self.marketCap = ticker.info['marketCap']
-
         revenue = 0
         ebitda = 0
         netIncome = 0 

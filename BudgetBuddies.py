@@ -120,7 +120,7 @@ def DiscountedCashFlow(tickerData,PerYGrowth):
     EquityValue = eq.eVal(EnterpriseValue,cash,debt)
     ImpliedSharePrice = eq.sharePriceImpl(EquityValue, shares)
     return {"ImpliedSharePrice" : ImpliedSharePrice, "FreeCashFlow" : tickerData['CFO'],
-            "LastYearCashFlow" : futureCFO[3]}
+            "LastYearCashFlow" : futureCFO[3].round(2)}
 
 #for testing
 def main():
