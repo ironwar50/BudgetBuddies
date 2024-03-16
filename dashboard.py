@@ -8,7 +8,8 @@ import MonteCarlo as mc
 import plotly.express as px
 import localDatabase as ld
 import pandas as pd
-from concurrent.futures import ThreadPoolExecutor  
+from concurrent.futures import ThreadPoolExecutor 
+import math 
 import time
 
 executor = ThreadPoolExecutor(max_workers=5)
@@ -218,19 +219,23 @@ def create_comp_tickers(tickerSymbols):
     return compTickers
 
 def create_dashboard_data(df):
-    ''' tickerSymbol = df['Ticker'].iloc[0]
-    perYearGrowth = df['PerYearGrowth'].iloc[0]
-    compareTickers = df['CompareTickers'].iloc[0]'''
-    start_total_time = time.time()
-    tickerSymbol = 'NVDA'
+    '''tickerSymbol = 'NVDA'
     perYearGrowth = .65
-    compareTickers = 'TSM,INTC,QCOM,AMD,MU'
-    start_time = time.time()
+    compareTickers = 'TSM,INTC,QCOM,AMD,MU'''
+
+    tickerSymbol = str(df['Ticker'].iloc[0])
+    perYearGrowth = df['PerYearGrowth'].iloc[0]
+    compareTickers = str(df['CompareTickers'].iloc[0])
+    print(compareTickers)
+    if tickerSymbol == '' or np.isnan(perYearGrowth)  or compareTickers == 'nan': return{'error': True}
+
+    start_total_time = time.time()
+   
     f_compareTickersList = executor.submit(create_comp_tickers,compareTickers.split(','))
     f_Ticker = executor.submit(create_ticker, tickerSymbol)
     compareTickersList = f_compareTickersList.result()
     ticker = f_Ticker.result()
-    print("Create Tickers:", time.time()-start_time)
+   
     #check if there's been an error with finding ticker
     if ticker == -1: return{'error': True}
     if compareTickersList == -1: return{'error': True}
@@ -241,32 +246,30 @@ def create_dashboard_data(df):
     df = get_dataframe(tickerData, start, end)
     fig = create_candlestick_figure(df)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)
-    start_time = time.time()
-    #monteCarlo = f_monteCarlo.result()
-    monteCarlo = getMonteCarlo(tickerData, perYearGrowth)
-    print("Monte Carlo:", time.time()-start_time)
-    start_time = time.time()
-    #f_monteCarlo = executor.submit(getMonteCarlo, tickerData, perYearGrowth)
+    
+    #monteCarlo = getMonteCarlo(tickerData, perYearGrowth)
+    
+    f_monteCarlo = executor.submit(getMonteCarlo, tickerData, perYearGrowth)
     f_TradeComps_ImpliedPrices = executor.submit(get_comps_implied_prices, compareTickersList, tickerData)
     f_DCF_ImpliedPrice = executor.submit(get_dcf_implied_price, tickerData, perYearGrowth)
     f_toCompDiv = executor.submit(generate_comparison_div,toCompData)
     f_sentimentAnalysis = executor.submit(getSentimentAnalysis,ticker)
     f_aLogReturn = executor.submit(annualLogReturn,df)
     f_movingAVG = executor.submit(ThirtyDayEMA,df)
-    print("Sumbit Functions:",time.time()-start_time)
-    start_time = time.time()
+    
     TradeComps_ImpliedPrices = f_TradeComps_ImpliedPrices.result()
     DCF_ImpliedPrice = f_DCF_ImpliedPrice.result()
     toCompDiv = f_toCompDiv.result()
     sentimentAnalysis = f_sentimentAnalysis.result()
     aLogReturn = f_aLogReturn.result()
     movingAVG = f_movingAVG.result()
-    print("Get results except for Monte Carlo:",time.time()-start_time)
+    monteCarlo = f_monteCarlo.result()
+  
     print("Total Time:", time.time()-start_total_time)
     
     return {
         'FullName': FullName,
-        'tickerSymbol': tickerSymbol,
+        'tickerSymbol': tickerData['tickerSymbol'],
         'LastClose': LastClose,
         'TrailingPE': TrailingPE,
         'ForwardPE': ForwardPE,

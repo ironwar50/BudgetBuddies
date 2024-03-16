@@ -65,6 +65,7 @@ def createTicker(tickerSymbol):
     ticker = Ticker(tickerSymbol)
 
     tickerData = ticker.getData()
+    print(tickerData['tickerSymbol'])
     if tickerData['tickerSymbol'] == -1: return -1
 
     if checkDate(tickerData['reportDate'], tickerSymbol):

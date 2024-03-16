@@ -28,7 +28,9 @@ def TradeComps(toComp, tickerData):
     revNum = 0
     ebitdaNum = 0
     netIncNum = 0
-    for tick in toComp: #Get data on each company being compared to.  
+    
+    for tick in toComp: #Get data on each company being compared to. 
+        print(tick) 
         tickData = tick.getData()
         #Check that there is the value aren't zero.
         #If there is a value that is missing don't count
@@ -38,10 +40,10 @@ def TradeComps(toComp, tickerData):
                     tickData['marketCap'],tickData['debt'],tickData['cash'])
         else: 
             EV = tickData['enterpriseValue']
-        if tickData['enterpriseToRevenue'] == 0:
+        if tickData['enterpriseToRevenue'] <= 0:
             AVG_rev_multi += eq.revenue_multiple(EV, tickData['revenue'])
             revNum+=1
-        elif tickData['revenue'] > 0: 
+        else: 
             AVG_rev_multi += tickData['enterpriseToRevenue']
             revNum+=1
         if tickData['enterpriseToEbitda'] <= 0:
@@ -50,8 +52,11 @@ def TradeComps(toComp, tickerData):
         else: 
             AVG_EBITDA_multi += tickData['enterpriseToEbitda']
             ebitdaNum+=1
-        if tickData['PE'] > 0: 
+        if tickData['PE']: 
             AVG_PE_ratio += tickData['PE']
+            netIncNum+=1
+        else:
+            AVG_PE_ratio += tickData['marketCap'] / tickData['netIncome']
             netIncNum+=1
     #get the multiple by divinding by the number of companies used.
     AVG_rev_multi /= revNum 

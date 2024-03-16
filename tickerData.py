@@ -31,12 +31,6 @@ class Ticker: #initialize ticker with at least the ticker symbol
         self.tickerSymbol = tickerSymbol.upper()
         self.ticker = yf.Ticker(self.tickerSymbol) 
         tickerInfo = self.ticker.info
-        try:
-            self.reportDate = tickerInfo['mostRecentQuarter']
-        except:
-            print("KEY ERROR")
-            self.reportDate = ''
-            self.tickerSymbol = -1
         self.revenue = revenue
         self.ebitda = ebitda
         self.netIncome = netIncome
@@ -46,6 +40,11 @@ class Ticker: #initialize ticker with at least the ticker symbol
         self.CFO = CFO
         self.TaxRate = TaxRate
         #grab data from yfinace that is updated frequently.
+        try:
+            self.reportDate = tickerInfo['mostRecentQuarter']
+        except KeyError:
+            self.reportDate = ''
+            self.tickerSymbol = -1
         if 'trailingPE' in tickerInfo.keys():
             self.PE = tickerInfo['trailingPE']
         elif 'forwardPE' in tickerInfo.keys():
