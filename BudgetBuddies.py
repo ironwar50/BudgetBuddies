@@ -29,7 +29,6 @@ def TradeComps(toComp, tickerData):
     ebitdaNum = 0
     netIncNum = 0
     for tick in toComp: #Get data on each company being compared to.  
-        tick.pullData()
         tickData = tick.getData()
         #Check that there is the value aren't zero.
         #If there is a value that is missing don't count
@@ -120,7 +119,7 @@ def DiscountedCashFlow(tickerData,PerYGrowth):
     EquityValue = eq.eVal(EnterpriseValue,cash,debt)
     ImpliedSharePrice = eq.sharePriceImpl(EquityValue, shares)
     return {"ImpliedSharePrice" : ImpliedSharePrice, "FreeCashFlow" : tickerData['CFO'],
-            "LastYearCashFlow" : futureCFO[3].round(2)}
+            "LastYearCashFlow" : futureCFO[3]}
 
 #for testing
 def main():

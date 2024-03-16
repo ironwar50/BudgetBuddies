@@ -17,21 +17,22 @@ def getCashflow(ticker):
 
 def checkData(tickerData):
     for key in tickerData.keys(): #make sure the all numerical data is a number
-        if (not key == 'tickerSymbol' and not key == 'ticker' 
-        and not key == 'reportDate' and str(tickerData[key])[0] < 'z' 
-        and str(tickerData[key])[0] > 'A'):
+        if (not key == 'lName' and not key == 'tickerSymbol' 
+            and not key == 'ticker' and not key == 'reportDate' 
+            and str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A'):
             tickerData[key] = 0
 
 class Ticker: #initialize ticker with at least the ticker symbol
     def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, 
                  debt=0, cash=0, shares=0, CFO=0, TaxRate=0, PE = 0, 
                  marketCap = 0, enterpriseValue = 0, enterpriseToRevenue = 0, 
-                 enterpriseToEbitda = 0, eps = 0, beta = 0):
+                 enterpriseToEbitda = 0, eps = 0, beta = 0, fPE = 0, lName = '',
+                 targetMeanPrice = 0, previousClose=0):
         self.tickerSymbol = tickerSymbol.upper()
         self.ticker = yf.Ticker(self.tickerSymbol) 
         tickerInfo = self.ticker.info
         try:
-            self.reportDate = self.ticker.earnings_dates.index[4]
+            self.reportDate = tickerInfo['mostRecentQuarter']
         except:
             print("KEY ERROR")
             self.reportDate = ''
@@ -77,6 +78,22 @@ class Ticker: #initialize ticker with at least the ticker symbol
             self.beta = tickerInfo['beta']
         else:
             self.beta = beta
+        if 'previousClose' in tickerInfo.keys():
+            self.previousClose = tickerInfo['previousClose']
+        else:
+            self.previousClose = previousClose
+        if 'forwardPE' in tickerInfo.keys():
+            self.fPE = tickerInfo['forwardPE']
+        else:
+            self.fPE = fPE
+        if 'longName' in tickerInfo.keys():
+            self.lName = tickerInfo['longName']
+        else:
+            self.lName = lName
+        if 'targetMeanPrice' in tickerInfo.keys():
+            self.targetMeanPrice = tickerInfo['targetMeanPrice']
+        else:
+            self.targetMeanPrice = targetMeanPrice
         
     #fills out data from database    
     def updateFromDatabase(self, revenue, ebitda, netIncome, debt, cash, shares, 
@@ -170,7 +187,9 @@ class Ticker: #initialize ticker with at least the ticker symbol
                 'enterpriseValue' : self.enterpriseValue, 
                 'enterpriseToRevenue' : self.enterpriseToRevenue, 
                 'enterpriseToEbitda' : self.enterpriseToEbitda,'eps' : self.eps, 
-                'beta' : self.beta, 'reportDate': str(self.reportDate)}
+                'beta' : self.beta, 'reportDate': self.reportDate, 
+                'previousClose' : self.previousClose, 'fPE' : self.fPE, 'lName' : self.lName,
+                'targetMeanPrice' : self.targetMeanPrice}
         checkData(tickerData)
         return tickerData
                                        

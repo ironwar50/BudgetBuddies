@@ -35,7 +35,6 @@ def get_ticker_data(ticker):
     Returns:
         Object: Data associated with the stock ticker.
     """
-    ticker.pullData()
     return ticker.getData()
 
 def get_comparison_data(toComp):
@@ -50,9 +49,8 @@ def get_comparison_data(toComp):
     toCompData = []
     for comp in toComp:
         compData = comp.getData()
-        tick = compData['ticker']
         try: #if tick.info is empty it will throw KeyError
-            temp = (tick.info['symbol'], tick.info['previousClose'])
+            temp = (compData['tickerSymbol'], compData['previousClose'])
         except KeyError: #if KeyError thrown return -1 to alert of error
             return -1
         toCompData.append(temp)
@@ -100,7 +98,7 @@ def create_candlestick_figure(df):
             ]), font=dict(color="#343A40")
         )
     )
-    fig.update_layout(title='Candlestick Chart', xaxis_title=None, yaxis_title='Price', 
+    fig.update_layout(title='Candlestick Chart', xaxis_title=None, yaxis_title='Price',margin=dict(t=75,r=30,b=30,l=20), 
                       plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40", font=dict(color="#F7F7F7"))
     return fig
 
@@ -113,18 +111,11 @@ def get_ticker_info(ticker_data):
     Returns:
         tuple: Tuple containing various characteristics of the stock ticker.
     """
-    tickerInfo = ticker_data['ticker'].info
-    FullName = tickerInfo['longName']
-    LastClose = tickerInfo['previousClose']
-    if 'trailingPE' in tickerInfo.keys():
-        TrailingPE = str("%0.2f" %tickerInfo['trailingPE'])
-    else:
-        TrailingPE = ""
-    if 'forwardPE' in tickerInfo.keys():
-        ForwardPE = str("%0.2f" %tickerInfo['forwardPE'])
-    else:
-        ForwardPE = ""
-    avgAnalystTarget = tickerInfo['targetMeanPrice']
+    FullName = ticker_data['lName']
+    LastClose = ticker_data['previousClose']
+    TrailingPE = str("%0.2f" %ticker_data['PE'])
+    ForwardPE = str("%0.2f" %ticker_data['fPE'])
+    avgAnalystTarget = ticker_data['targetMeanPrice']
     return FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget
 
 def get_comps_implied_prices(toComp, ticker_data):
@@ -210,8 +201,10 @@ def getMonteCarlo(tickerData, PerYearGrowth):
         mean: float
     """
     distribution =  mc.MonteCarlo(tickerData, PerYearGrowth)
-    fig = px.histogram(distribution, nbins=75, title='Monte Carlo Simulation of DCF', color_discrete_sequence = ['maroon'])
-    fig.update_layout(legend_title=None, plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40",font=dict(color="#F7F7F7"))
+    fig = px.histogram(distribution, nbins=75, title='Monte Carlo Simulation of DCF', 
+                       color_discrete_sequence = ['maroon'])
+    fig.update_layout(legend_title=None, plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40",
+                      margin=dict(t=75,b=20,l=20),font=dict(color="#F7F7F7"))
     mean = distribution.mean()
     return {'fig': fig, 'mean': mean}
 
@@ -225,40 +218,51 @@ def create_comp_tickers(tickerSymbols):
     return compTickers
 
 def create_dashboard_data(df):
-    start_time = time.time()
-    tickerSymbol = df['Ticker'].iloc[0]
+    ''' tickerSymbol = df['Ticker'].iloc[0]
     perYearGrowth = df['PerYearGrowth'].iloc[0]
-    compareTickers = df['CompareTickers'].iloc[0]
-
-    f_Ticker = executor.submit(create_ticker, tickerSymbol)
+    compareTickers = df['CompareTickers'].iloc[0]'''
+    start_total_time = time.time()
+    tickerSymbol = 'NVDA'
+    perYearGrowth = .65
+    compareTickers = 'TSM,INTC,QCOM,AMD,MU'
+    start_time = time.time()
     f_compareTickersList = executor.submit(create_comp_tickers,compareTickers.split(','))
-    ticker = f_Ticker.result()
+    f_Ticker = executor.submit(create_ticker, tickerSymbol)
     compareTickersList = f_compareTickersList.result()
+    ticker = f_Ticker.result()
+    print("Create Tickers:", time.time()-start_time)
     #check if there's been an error with finding ticker
     if ticker == -1: return{'error': True}
     if compareTickersList == -1: return{'error': True}
     start, end = get_start_end_dates()
-    tickerData = get_ticker_data(ticker)   
+    tickerData = ticker.getData()  
     toCompData = get_comparison_data(compareTickersList)
     if toCompData == -1: return{'error': True}
     df = get_dataframe(tickerData, start, end)
     fig = create_candlestick_figure(df)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)
+    start_time = time.time()
+    #monteCarlo = f_monteCarlo.result()
+    monteCarlo = getMonteCarlo(tickerData, perYearGrowth)
+    print("Monte Carlo:", time.time()-start_time)
+    start_time = time.time()
+    #f_monteCarlo = executor.submit(getMonteCarlo, tickerData, perYearGrowth)
     f_TradeComps_ImpliedPrices = executor.submit(get_comps_implied_prices, compareTickersList, tickerData)
     f_DCF_ImpliedPrice = executor.submit(get_dcf_implied_price, tickerData, perYearGrowth)
     f_toCompDiv = executor.submit(generate_comparison_div,toCompData)
     f_sentimentAnalysis = executor.submit(getSentimentAnalysis,ticker)
     f_aLogReturn = executor.submit(annualLogReturn,df)
     f_movingAVG = executor.submit(ThirtyDayEMA,df)
-    f_monteCarlo = executor.submit(getMonteCarlo,tickerData, perYearGrowth)
+    print("Sumbit Functions:",time.time()-start_time)
+    start_time = time.time()
     TradeComps_ImpliedPrices = f_TradeComps_ImpliedPrices.result()
     DCF_ImpliedPrice = f_DCF_ImpliedPrice.result()
     toCompDiv = f_toCompDiv.result()
     sentimentAnalysis = f_sentimentAnalysis.result()
     aLogReturn = f_aLogReturn.result()
     movingAVG = f_movingAVG.result()
-    monteCarlo = f_monteCarlo.result()
-    print(time.time()-start_time)
+    print("Get results except for Monte Carlo:",time.time()-start_time)
+    print("Total Time:", time.time()-start_total_time)
     
     return {
         'FullName': FullName,

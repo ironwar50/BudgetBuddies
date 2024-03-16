@@ -98,7 +98,7 @@ def create_dashboard(dashboard_data):
         html.Div([
             html.P("Year Five Cash Flow",
                    style={'display' : 'inline-block', 'margin-left' : '75px'}),
-            html.P(f"{dashboard_data['DCF_ImpliedPrice']['LastYearCashFlow']:,}",
+            html.P(f"{dashboard_data['DCF_ImpliedPrice']['LastYearCashFlow']:,.2f}",
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([

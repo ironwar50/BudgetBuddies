@@ -7,7 +7,7 @@ def create_ticker_data_table():
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS "TickerData" (
                 PrimaryKey INTEGER PRIMARY KEY,
-                CurrentReportDate TEXT,
+                CurrentReportDate REAL,
                 Ticker TEXT,
                 Revenue REAL,
                 NetIncome REAL,
@@ -63,10 +63,12 @@ def checkDate(newDate, tickerSymbol)->bool:
 def createTicker(tickerSymbol):
     create_ticker_data_table()
     ticker = Ticker(tickerSymbol)
+
     tickerData = ticker.getData()
-    if tickerData['tickerSymbol'] == -1:
-        return -1
+    if tickerData['tickerSymbol'] == -1: return -1
+
     if checkDate(tickerData['reportDate'], tickerSymbol):
+        print("Database")
         with sql.connect('budgetbuddies.db') as conn:
             conn.row_factory = sql.Row
             cursor = conn.cursor()
@@ -78,6 +80,7 @@ def createTicker(tickerSymbol):
                                       tickerDB['Cash'], tickerDB['Shares'],
                                       tickerDB['CFO'],  tickerDB['TaxRate'])
     else:
+        print("Pulling Data")
         ticker.pullData()
         insertFromTicker(ticker)
     
