@@ -52,18 +52,19 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt,
     variable_names = ['beta', 'ExpectedReturn', 'risk_free_rate', 'debt', 
                       'marketCap', 'TaxRate', 'CostofDebt', 'PerYGrowth', 
                       'TargetGrowthRate', 'cash', 'presentValue', 'shares']
-
+    
     R = ot.CorrelationMatrix(len(variable_dist))
     copula = ot.NormalCopula(R)
     BuiltComposedDistribution = ot.ComposedDistribution(variable_dist, copula)
     generated_sample = BuiltComposedDistribution.getSample(100000)
     df_generated_sample = pd.DataFrame.from_records(generated_sample, 
                                                     columns=variable_names)
-
+    
+    df_generated_sample['PresentValue0'] = df_generated_sample['presentValue']
+    
     df_generated_sample['EquityCost'] = df_generated_sample.apply(
         lambda row: eq.equityCost(Beta=row.iloc[0], ExpReturn=row.iloc[1], 
                                   RiskFreeRate=row.iloc[2]), axis=1)
-    
     
     df_generated_sample['EquityPercent'] = df_generated_sample.apply(
         lambda row: eq.equityPercent(eVal=row.iloc[3]+row.iloc[4], 
@@ -78,8 +79,6 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt,
                             equityCost=row['EquityCost'], debtPercent=row['DebtPercent'], 
                             debtCost=row.iloc[6],taxRate=row.iloc[5]), axis=1)
     
-    df_generated_sample['PresentValue0'] = df_generated_sample['presentValue']
-
     for i in range(4):
         df_generated_sample['PresentValue{}'.format(i+1)] = df_generated_sample.apply(
             lambda row: row['PresentValue{}'.format(i)]*(1+row.iloc[7]), axis=1)
@@ -110,7 +109,6 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt,
     df_generated_sample['ImpliedSharePrice'] = df_generated_sample.apply(
         lambda row: eq.sharePriceImpl(eVal=row['EquityValue'], 
                                       shares=row.iloc[11]), axis=1)
-    
     return df_generated_sample['ImpliedSharePrice']
 
 def MonteCarlo(tickerData,PerYGrowth):
@@ -135,16 +133,13 @@ def MonteCarlo(tickerData,PerYGrowth):
     beta = tickerData['beta']
     CFO = tickerData['CFO']
     TaxRate = tickerData['TaxRate']
-   
     ISPD = MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, 
                                 marketCap, TaxRate, CostofDebt, PerYGrowth, 
                                 TargetGrowthRate, cash, CFO, shares)
-
     q_low = ISPD.quantile(0.005)
     q_hi = ISPD.quantile(0.99)
 
     df_filtered = ISPD[(ISPD < q_hi) & (ISPD > q_low)]
-
     return df_filtered
 
 #for testing
@@ -155,7 +150,7 @@ def main():
     tickerData = ticker.getData()
     PerYGrowth = .65
     monteCarlo = MonteCarlo(tickerData, PerYGrowth)
-    fig = px.histogram(monteCarlo, nbins=65)
+    fig = px.histogram(monteCarlo, nbins=75)
     fig.show()
 
 if __name__ == "__main__":

@@ -3,28 +3,33 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 import os
+from concurrent.futures import ThreadPoolExecutor
+
+def getIncome(ticker):
+    return ticker.quarterly_income_stmt.transpose()
+def getBalance(ticker):
+    return ticker.quarterly_balance_sheet.transpose()   
+def getInfo(ticker):
+    return ticker.info
+def getCashflow(ticker):
+    return ticker.quarterly_cash_flow.transpose()
 
 def checkData(tickerData):
     for key in tickerData.keys(): #make sure the all numerical data is a number
-        if (not key == 'tickerSymbol' and not key == 'ticker' 
-        and not key == 'reportDate' and str(tickerData[key])[0] < 'z' 
-        and str(tickerData[key])[0] > 'A'):
+        if (not key == 'lName' and not key == 'tickerSymbol' 
+            and not key == 'ticker' and not key == 'reportDate' 
+            and str(tickerData[key])[0] < 'z' and str(tickerData[key])[0] > 'A'):
             tickerData[key] = 0
 
 class Ticker: #initialize ticker with at least the ticker symbol
     def __init__(self, tickerSymbol, revenue=0, ebitda=0, netIncome = 0, 
                  debt=0, cash=0, shares=0, CFO=0, TaxRate=0, PE = 0, 
                  marketCap = 0, enterpriseValue = 0, enterpriseToRevenue = 0, 
-                 enterpriseToEbitda = 0, eps = 0, beta = 0):
+                 enterpriseToEbitda = 0, eps = 0, beta = 0, fPE = 0, lName = '',
+                 targetMeanPrice = 0, previousClose=0):
         self.tickerSymbol = tickerSymbol.upper()
         self.ticker = yf.Ticker(self.tickerSymbol) 
         tickerInfo = self.ticker.info
-        try:
-            self.reportDate = self.ticker.earnings_dates.index[4]
-        except:
-            print("KEY ERROR")
-            self.reportDate = ''
-            self.tickerSymbol = -1
         self.revenue = revenue
         self.ebitda = ebitda
         self.netIncome = netIncome
@@ -34,6 +39,11 @@ class Ticker: #initialize ticker with at least the ticker symbol
         self.CFO = CFO
         self.TaxRate = TaxRate
         #grab data from yfinace that is updated frequently.
+        try:
+            self.reportDate = tickerInfo['mostRecentQuarter']
+        except KeyError:
+            self.reportDate = ''
+            self.tickerSymbol = -1
         if 'trailingPE' in tickerInfo.keys():
             self.PE = tickerInfo['trailingPE']
         elif 'forwardPE' in tickerInfo.keys():
@@ -66,6 +76,22 @@ class Ticker: #initialize ticker with at least the ticker symbol
             self.beta = tickerInfo['beta']
         else:
             self.beta = beta
+        if 'previousClose' in tickerInfo.keys():
+            self.previousClose = tickerInfo['previousClose']
+        else:
+            self.previousClose = previousClose
+        if 'forwardPE' in tickerInfo.keys():
+            self.fPE = tickerInfo['forwardPE']
+        else:
+            self.fPE = fPE
+        if 'longName' in tickerInfo.keys():
+            self.lName = tickerInfo['longName']
+        else:
+            self.lName = lName
+        if 'targetMeanPrice' in tickerInfo.keys():
+            self.targetMeanPrice = tickerInfo['targetMeanPrice']
+        else:
+            self.targetMeanPrice = targetMeanPrice
         
     #fills out data from database    
     def updateFromDatabase(self, revenue, ebitda, netIncome, debt, cash, shares, 
@@ -111,13 +137,17 @@ class Ticker: #initialize ticker with at least the ticker symbol
         
     def pullData(self): #grabs all necessary data from yfinance
         ticker = self.ticker
-        tickerIncome = ticker.quarterly_income_stmt 
-        tickerIncome = tickerIncome.transpose()
-        tickerBalance = ticker.quarterly_balance_sheet.transpose()                                                              
-        tickerCashFlow = ticker.quarterly_cash_flow.transpose()
-        tickerInfo = ticker.info
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            f_tickerIncome = executor.submit(getIncome, ticker)
+            f_tickerBalance = executor.submit(getBalance, ticker)                                                              
+            f_tickerCashFlow = executor.submit(getCashflow, ticker)
+            f_tickerInfo = executor.submit(getInfo, ticker)
+            tickerIncome = f_tickerIncome.result()
+            tickerBalance = f_tickerBalance.result()                                                              
+            tickerCashFlow = f_tickerCashFlow.result() 
+            tickerInfo = f_tickerInfo.result()
+        
         self.marketCap = ticker.info['marketCap']
-
         revenue = 0
         ebitda = 0
         netIncome = 0 
@@ -155,7 +185,9 @@ class Ticker: #initialize ticker with at least the ticker symbol
                 'enterpriseValue' : self.enterpriseValue, 
                 'enterpriseToRevenue' : self.enterpriseToRevenue, 
                 'enterpriseToEbitda' : self.enterpriseToEbitda,'eps' : self.eps, 
-                'beta' : self.beta, 'reportDate': str(self.reportDate)}
+                'beta' : self.beta, 'reportDate': self.reportDate, 
+                'previousClose' : self.previousClose, 'fPE' : self.fPE, 'lName' : self.lName,
+                'targetMeanPrice' : self.targetMeanPrice}
         checkData(tickerData)
         return tickerData
                                        

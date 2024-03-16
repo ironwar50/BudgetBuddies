@@ -37,78 +37,78 @@ def create_dashboard(dashboard_data):
         ),
         html.Div([
                 html.P("Last Close",style={'display' : 'inline-block',
-                                           'margin-left' : '150px'}),
+                                           'margin-left' : '75px'}),
                 html.P(dashboard_data['LastClose'],
                        style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
-                html.P("P/E",style={'display' : 'inline-block','margin-left' : '150px'}),
+                html.P("P/E",style={'display' : 'inline-block','margin-left' : '75px'}),
                 html.P(dashboard_data['TrailingPE'],
                        style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
                 html.P("Forward P/E",
-                       style={'display' : 'inline-block','margin-left' : '150px'}),
+                       style={'display' : 'inline-block','margin-left' : '75px'}),
                 html.P(dashboard_data['ForwardPE'],
                        style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
                 html.P("EPS",style={'display' : 'inline-block',
-                                    'margin-left' : '150px'}),
+                                    'margin-left' : '75px'}),
                 html.P(dashboard_data['eps'],
                        style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
                 html.P("Analyst Target",
-                       style={'display' : 'inline-block','margin-left' : '150px'}),
+                       style={'display' : 'inline-block','margin-left' : '75px'}),
                 html.P(dashboard_data['avgAnalystTarget'],
                        style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
             html.P("Thirty Day Exponential Moving Average",
-                   style={'display' : 'inline-block', 'margin-left' : '150px'}),
+                   style={'display' : 'inline-block', 'margin-left' : '75px'}),
             html.P("%0.2f"%dashboard_data['movingAVG'],
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
             html.P("Annualized Log Return",
-                   style={'display' : 'inline-block', 'margin-left' : '150px'}),
+                   style={'display' : 'inline-block', 'margin-left' : '75px'}),
             html.P(str("%0.2f"%dashboard_data['aLogReturn'])+"%",
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.P("News Sentiment Analysis",
-                   style={'margin-left' : '150px'}),
+                   style={'margin-left' : '75px'}),
         dcc.Graph(figure=dashboard_data['sentimentAnalysis'], 
-                  style={'margin-left' : '150px'}, ),
+                  style={'margin-left' : '75px'}, ),
         html.Br(),
         html.H2("Discounted Cash Flow",
-                style={'display' : 'inline-block','margin-left' : '150px'}),
+                style={'display' : 'inline-block','margin-left' : '75px'}),
         html.Div([
             html.P("Current Cash Flow",
-                   style={'display' : 'inline-block','margin-left' : '150px'}),
+                   style={'display' : 'inline-block','margin-left' : '75px'}),
             html.P(f"{dashboard_data['DCF_ImpliedPrice']['FreeCashFlow']:,}",
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
             html.P("Average Yearly Growth",
-                   style={'display' : 'inline-block', 'margin-left' : '150px'}),
+                   style={'display' : 'inline-block', 'margin-left' : '75px'}),
             html.P(dashboard_data['PerYGrowth'],
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
             html.P("Year Five Cash Flow",
-                   style={'display' : 'inline-block', 'margin-left' : '150px'}),
-            html.P(f"{dashboard_data['DCF_ImpliedPrice']['LastYearCashFlow']:,}",
+                   style={'display' : 'inline-block', 'margin-left' : '75px'}),
+            html.P(f"{dashboard_data['DCF_ImpliedPrice']['LastYearCashFlow']:,.2f}",
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Div([
             html.P("Implied Share Price",
-                   style={'display' : 'inline-block', 'margin-left' : '150px'}),
+                   style={'display' : 'inline-block', 'margin-left' : '75px'}),
             html.P("%0.2f" %dashboard_data['DCF_ImpliedPrice']['ImpliedSharePrice'],
                    style={'float' : 'right','display' : 'inline-block'})
         ]),
         html.Br(),
-        html.H2("Trading Comps",style={'margin-left' : '150px'}),
+        html.H2("Trading Comps",style={'margin-left' : '75px'}),
         html.Div([
             html.Div(dashboard_data['toCompDiv']),
             html.P("Revenue Share Price: "+
