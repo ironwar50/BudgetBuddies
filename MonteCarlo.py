@@ -120,7 +120,7 @@ def MonteCarlo(tickerData,PerYGrowth):
     debt = tickerData['debt']
     shares = tickerData['shares']
     marketCap = tickerData['marketCap']
-    risk_free_rate = ten_year_treasury_rate[-1]
+    risk_free_rate = ten_year_treasury_rate.iloc[-1]
     TargetGrowthRate = .03
     ExpectedReturn = .08
     CostofDebt = .03
