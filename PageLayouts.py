@@ -11,7 +11,7 @@ def create_homepage():
        html.H3("Speed up the process of financial modeling"),
        html.Br(),
        html.H5("""Intrinsic value will be calculated from the 
-               input of a ticker with a estimated yearly growth"""),
+               input of a ticker with an estimated yearly growth"""),
        html.H5("Enter tickers of competitors for Trade Comps"),
        html.Br(),
        html.Div([

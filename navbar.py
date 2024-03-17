@@ -7,7 +7,6 @@ import dash_bootstrap_components as dbc
 
 csv_file = 'user_input.csv'
 
-#home_layout = html.Div(children=[html.H1(children="This is our Home page")])
 home_layout = pl.create_homepage() 
 
 def get_upload_layout(error=False):
