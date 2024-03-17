@@ -160,7 +160,7 @@ def upload_data_layout():
                 html.Label(className='menu-title', children="Enter Per Year Growth:"),
                 dcc.Input(id="per-year-growth-input", type="number", 
                           placeholder=0.25, className='ticker-input', 
-                          min=0, max=1, step=0.01),
+                          min=-1, max=2, step=0.01),
             ]),
             html.Div(className='menu-item', children=[
                 html.Label(className='menu-title', 
