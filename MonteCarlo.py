@@ -8,6 +8,7 @@ import pandas as pd
 import plotly.express as px
 from dotenv import load_dotenv
 import os
+import numpy as np
 
 load_dotenv()
 
@@ -40,7 +41,7 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt,
     marketCap = ot.Normal(marketCap, marketCap * .1)
     TaxRate = ot.Normal(TaxRate, TaxRate*.1)
     CostofDebt = ot.Normal(CostofDebt, CostofDebt*.1)
-    PerYGrowth = ot.Normal(PerYGrowth, PerYGrowth*.1)
+    PerYGrowth = ot.Normal(PerYGrowth, .02)
     TargetGrowthRate = ot.Normal(TargetGrowthRate, TargetGrowthRate*.1)
     cash = ot.Normal(cash, cash*.1)
     presentValue = ot.Normal(presentValue, presentValue*.1)
@@ -56,59 +57,52 @@ def MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt,
     R = ot.CorrelationMatrix(len(variable_dist))
     copula = ot.NormalCopula(R)
     BuiltComposedDistribution = ot.ComposedDistribution(variable_dist, copula)
-    generated_sample = BuiltComposedDistribution.getSample(100000)
+    generated_sample = BuiltComposedDistribution.getSample(10000)
     df_generated_sample = pd.DataFrame.from_records(generated_sample, 
                                                     columns=variable_names)
     
     df_generated_sample['PresentValue0'] = df_generated_sample['presentValue']
-    
-    df_generated_sample['EquityCost'] = df_generated_sample.apply(
-        lambda row: eq.equityCost(Beta=row.iloc[0], ExpReturn=row.iloc[1], 
-                                  RiskFreeRate=row.iloc[2]), axis=1)
-    
-    df_generated_sample['EquityPercent'] = df_generated_sample.apply(
-        lambda row: eq.equityPercent(eVal=row.iloc[3]+row.iloc[4], 
-                                     Debt=row.iloc[3]), axis=1)
 
-    df_generated_sample['DebtPercent'] = df_generated_sample.apply(
-        lambda row: eq.debtPercent(Debt=row.iloc[3], 
-                                   eVal=row.iloc[4] + row.iloc[3]), axis=1)
-    
-    df_generated_sample['WACC'] = df_generated_sample.apply(
-        lambda row: eq.WACC(equityPercent=row['EquityPercent'], 
-                            equityCost=row['EquityCost'], debtPercent=row['DebtPercent'], 
-                            debtCost=row.iloc[6],taxRate=row.iloc[5]), axis=1)
+    df_generated_sample['EquityCost'] = np.vectorize(eq.equityCost)(df_generated_sample['beta'], 
+                                                                    df_generated_sample['ExpectedReturn'], 
+                                                                    df_generated_sample['risk_free_rate'])
+
+    df_generated_sample['EquityPercent'] = np.vectorize(eq.equityPercent)(df_generated_sample['marketCap'], 
+                                                                          df_generated_sample['debt'])
+
+    df_generated_sample['DebtPercent'] = np.vectorize(eq.debtPercent)(df_generated_sample['debt'], 
+                                                                          df_generated_sample['marketCap'])
+
+    df_generated_sample['WACC'] = np.vectorize(eq.WACC)(df_generated_sample['EquityPercent'], 
+                            df_generated_sample['EquityCost'], df_generated_sample['DebtPercent'], 
+                            df_generated_sample['CostofDebt'],df_generated_sample['TaxRate'])
     
     for i in range(4):
         df_generated_sample['PresentValue{}'.format(i+1)] = df_generated_sample.apply(
-            lambda row: row['PresentValue{}'.format(i)]*(1+row.iloc[7]), axis=1)
-
+            lambda row: row['PresentValue{}'.format(i)]*(1+row['PerYGrowth']), axis=1)
+   
     df_generated_sample['PresentValueSum'] = df_generated_sample.apply(
-        lambda row: eq.presentValue(CFO=row.iloc[10], WACC=row['WACC'], Year=1)
+        lambda row: eq.presentValue(CFO=row['presentValue'], WACC=row['WACC'], Year=1)
         + eq.presentValue(CFO=row['PresentValue1'], WACC=row['WACC'], Year=2)
         + eq.presentValue(CFO=row['PresentValue2'], WACC=row['WACC'], Year=3)
         + eq.presentValue(CFO=row['PresentValue3'], WACC=row['WACC'], Year=4)
         + eq.presentValue(CFO=row['PresentValue4'], WACC=row['WACC'], Year=5), axis=1)
     
-    df_generated_sample['TerminalValue'] = df_generated_sample.apply(
-        lambda row: eq.tVal(LYCFO=row['PresentValue4'], TGR=row.iloc[8], 
-                            WACC=row['WACC']), axis=1)
+    df_generated_sample['TerminalValue'] = np.vectorize(eq.tVal)(df_generated_sample['PresentValue4'], 
+                            df_generated_sample['TargetGrowthRate'], df_generated_sample['WACC'])
     
-    df_generated_sample['PresentOfTerminal'] = df_generated_sample.apply(
-        lambda row: eq.presentTerminalValue(tVal=row['TerminalValue'], 
-                                            WACC=row['WACC'], lYear=5), axis=1)
+    df_generated_sample['PresentOfTerminal'] = np.vectorize(eq.presentTerminalValue)(df_generated_sample['TerminalValue'], 
+                            df_generated_sample['WACC'], 5)
     
-    df_generated_sample['EnterpriseValue'] = df_generated_sample.apply(
-        lambda row: eq.enVal(presentValueSum=row['PresentValueSum'], 
-                             presentTerminalValue=row['PresentOfTerminal']), axis=1)
+    df_generated_sample['EnterpriseValue'] = np.vectorize(eq.enVal)(df_generated_sample['PresentValueSum'], 
+                            df_generated_sample['PresentOfTerminal'])
     
-    df_generated_sample['EquityValue'] = df_generated_sample.apply(
-        lambda row: eq.eVal(enVal=row['EnterpriseValue'], Cash=row.iloc[9], 
-                            Debt=row.iloc[3]), axis=1)
+    df_generated_sample['EquityValue'] = np.vectorize(eq.eVal)(df_generated_sample['EnterpriseValue'], 
+                            df_generated_sample['cash'],df_generated_sample['debt'])
+
+    df_generated_sample['ImpliedSharePrice'] = np.vectorize(eq.sharePriceImpl)(df_generated_sample['EquityValue'], 
+                            df_generated_sample['shares'])
     
-    df_generated_sample['ImpliedSharePrice'] = df_generated_sample.apply(
-        lambda row: eq.sharePriceImpl(eVal=row['EquityValue'], 
-                                      shares=row.iloc[11]), axis=1)
     return df_generated_sample['ImpliedSharePrice']
 
 def MonteCarlo(tickerData,PerYGrowth):
@@ -133,6 +127,7 @@ def MonteCarlo(tickerData,PerYGrowth):
     beta = tickerData['beta']
     CFO = tickerData['CFO']
     TaxRate = tickerData['TaxRate']
+    if PerYGrowth == 0: PerYGrowth = .0000001
     ISPD = MonteCarloSimulation(beta, ExpectedReturn, risk_free_rate, debt, 
                                 marketCap, TaxRate, CostofDebt, PerYGrowth, 
                                 TargetGrowthRate, cash, CFO, shares)
