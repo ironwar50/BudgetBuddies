@@ -1,6 +1,10 @@
+import os
+
 import dash
 from dash import dcc, html, Input, Output, State, callback
-import pandas as pd 
+import pandas as pd
+import MySQLdb
+
 
 image_path1 = 'assets/monte_carlo.png'
 image_path2 = 'assets/sentiment_analysis.png'
@@ -135,7 +139,6 @@ def create_dashboard(dashboard_data):
              'float' : 'right', 'margin-right' : '50px'}),
 ])
 
-
 def upload_data_layout():
     """
     This creates a page layout allowing users to enter their specific stock ticker,
@@ -173,6 +176,68 @@ def upload_data_layout():
             html.Div(id='hidden-div', style={'display': 'none'})
         ])
     ])
+
+def database_table_layout():
+    """
+        This function generates a layout to display database tables.
+        :param tables: List of table names retrieved from the database
+        :return: Dash HTML layout
+    """
+    # Establish connection to the MySQL database
+    connection = MySQLdb.connect(
+        host=os.getenv("DATABASE_HOST"),
+        user=os.getenv("DATABASE_USERNAME"),
+        passwd=os.getenv("DATABASE_PASSWORD"),
+        db=os.getenv("DATABASE"),
+        autocommit=True,
+        ssl_mode="VERIFY_IDENTITY",
+        ssl={
+            "ca": "/etc/ssl/certs/ca-certificates.crt"
+        }
+    )
+
+    # Create cursor
+    cursor = connection.cursor()
+
+    # Execute query to select all rows from TickerData table
+    cursor.execute("SELECT * FROM TickerData")
+
+    # Fetch all rows
+    rows = cursor.fetchall()
+
+    # Close cursor and connection
+    cursor.close()
+    connection.close()
+    
+    # Create table rows for each row in the TickerData table
+    table_rows = [
+        html.Tr([
+            html.Td(column, className="table-cell") for column in row[1:]
+        ]) for row in rows
+    ]
+
+    # Return the layout with CSS styling
+    return html.Div([
+        html.H1("TickerData Table", className="table-header", style={'text-align': 'center', 'padding': '10px'}),
+        html.Div(className="table-container", style={"overflow": "auto", "height": "500px"}, children=[
+            html.Table([
+                html.Thead(html.Tr([
+                    html.Th("Current Report Date", className="table-header"),
+                    html.Th("Ticker", className="table-header"),
+                    html.Th("Revenue", className="table-header"),
+                    html.Th("Net Income", className="table-header"),
+                    html.Th("EBITDA", className="table-header"),
+                    html.Th("Debt", className="table-header"),
+                    html.Th("Cash", className="table-header"),
+                    html.Th("Shares", className="table-header"),
+                    html.Th("CFO", className="table-header"),
+                    html.Th("Tax Rate", className="table-header")
+                ])),
+                html.Tbody(table_rows)
+            ], className="table", style={'table-layout': 'auto', 'width': '100%', 'overflow-x': 'auto'})
+        ])
+    ], className="table-layout")
+
 
 
 @callback(

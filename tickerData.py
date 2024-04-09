@@ -12,7 +12,7 @@ def getBalance(ticker):
 def getInfo(ticker):
     return ticker.info
 def getCashflow(ticker):
-    return ticker.quarterly_cash_flow.transpose()
+    return ticker.cash_flow.transpose()
 
 def checkData(tickerData):
     for key in tickerData.keys(): #make sure the all numerical data is a number
@@ -111,7 +111,10 @@ class Ticker: #initialize ticker with at least the ticker symbol
         symbol = self.ticker.info['symbol'].upper().strip()
         #get data from alpha vantage
         url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={}&apikey={}".format(symbol, alpha_vantage_key)
-        r = requests.get(url)
+        try:
+            r = requests.get(url)
+        except:
+            return -1
         data = r.json() #store json 
         bearish = 0
         somewhatBearish = 0
@@ -151,12 +154,12 @@ class Ticker: #initialize ticker with at least the ticker symbol
         revenue = 0
         ebitda = 0
         netIncome = 0 
-        cfo = 0
+        cfo = tickerCashFlow['Cash Flow From Continuing Operating Activities'].iloc[0]
         for i in range(4): 
             revenue += tickerIncome['Total Revenue'].iloc[i]
             ebitda += tickerIncome['EBITDA'].iloc[i]
             netIncome += tickerIncome['Net Income'].iloc[i] 
-            cfo += tickerCashFlow['Cash Flow From Continuing Operating Activities'].iloc[i]
+            
         self.revenue = revenue
         self.ebitda = ebitda
         self.netIncome = netIncome                                                                                                

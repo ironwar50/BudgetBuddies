@@ -7,7 +7,13 @@ import dash_bootstrap_components as dbc
 
 csv_file = 'user_input.csv'
 
-home_layout = pl.create_homepage() 
+def home_layout(error=False):
+    alerts = html.Div()
+    if error:
+        alerts = html.Div(dbc.Alert("Enter Data First", color="warning"),
+                          style={'text-align': 'center'})
+    return html.Div(children=[alerts,pl.create_homepage()])
+
 
 def get_upload_layout(error=False):
     """
@@ -31,7 +37,10 @@ def get_dashboard_layout():
     Return the dashboard that will be created if no error.
     If error return back to upload_layout. 
     """
-    df = db.create_dashboard_data(pd.read_csv(csv_file))
+    try:
+        df = db.create_dashboard_data(pd.read_csv(csv_file))
+    except FileNotFoundError:
+        return home_layout(True)
     if df['error']:
         return get_upload_layout(df['error'])
     return pl.create_dashboard(df)
@@ -47,6 +56,7 @@ def get_navbar():
             dbc.NavItem(dbc.NavLink("Home", href="/")),
             dbc.NavItem(dbc.NavLink("Data upload", href="/upload_layout")),
             dbc.NavItem(dbc.NavLink("Dashboard", href="/dashboard_layout")),
+            dbc.NavItem(dbc.NavLink("Database", href="/database_layout")),
         ],
         brand="Budget Buddies",
         color="dark",
@@ -68,11 +78,13 @@ def display_page(pathname):
         dash component: The component for visiting the pathname.
     """
     if pathname == "/":
-        return home_layout
+        return home_layout()
     elif pathname == "/upload_layout":
         return get_upload_layout()
     elif pathname == "/dashboard_layout":
         return get_dashboard_layout()
+    elif pathname == "/database_layout":
+        return pl.database_table_layout()
     else:
         return html.Div(children=[
             html.H1("404: Not found", className="text-danger"),
