@@ -11,7 +11,7 @@ def create_homepage():
        html.H3("Speed up the process of financial modeling"),
        html.Br(),
        html.H5("""Intrinsic value will be calculated from the 
-               input of a ticker with a estimated yearly growth"""),
+               input of a ticker with an estimated yearly growth"""),
        html.H5("Enter tickers of competitors for Trade Comps"),
        html.Br(),
        html.Div([
@@ -160,7 +160,7 @@ def upload_data_layout():
                 html.Label(className='menu-title', children="Enter Per Year Growth:"),
                 dcc.Input(id="per-year-growth-input", type="number", 
                           placeholder=0.25, className='ticker-input', 
-                          min=0, max=1, step=0.01),
+                          min=-1, max=2, step=0.01),
             ]),
             html.Div(className='menu-item', children=[
                 html.Label(className='menu-title', 

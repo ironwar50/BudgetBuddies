@@ -98,7 +98,7 @@ def create_candlestick_figure(df):
             ]), font=dict(color="#343A40")
         )
     )
-    fig.update_layout(title='Candlestick Chart', xaxis_title=None, yaxis_title='Price',margin=dict(t=75,r=30,b=30,l=20), 
+    fig.update_layout(title='Candlestick Chart', xaxis_title=None, yaxis_title='Price',margin=dict(t=85,r=30,b=30,l=20), 
                       plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40", font=dict(color="#F7F7F7"))
     return fig
 
@@ -201,7 +201,7 @@ def getMonteCarlo(tickerData, PerYearGrowth):
         mean: float
     """
     distribution =  mc.MonteCarlo(tickerData, PerYearGrowth)
-    fig = px.histogram(distribution, nbins=75, title='Monte Carlo Simulation of DCF', 
+    fig = px.histogram(distribution, nbins=35, title='Monte Carlo Simulation of DCF', 
                        color_discrete_sequence = ['maroon'])
     fig.update_layout(legend_title=None, plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40",
                       margin=dict(t=75,b=20,l=20),font=dict(color="#F7F7F7"))
