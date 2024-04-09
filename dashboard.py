@@ -9,6 +9,7 @@ import plotly.express as px
 import localDatabase as ld
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor 
+from concurrent.futures import as_completed
 import time
 
 executor = ThreadPoolExecutor(max_workers=5)
@@ -157,7 +158,11 @@ def getSentimentAnalysis(ticker: Ticker):
         string: Bullish, Neutral, Bearish.
     """
     #df = pd.DataFrame([{'Bearish' : 3, 'Somewhat Bearish': 7,'Somewhat Bullish' : 25, 'Bullish' : 20}])
-    df = pd.DataFrame([ticker.sentimentAnalysis()]) 
+    sentiment = ticker.sentimentAnalysis()
+    if sentiment == -1:
+        df = pd.DataFrame([{'Bearish' : 0, 'Somewhat Bearish': 0,'Somewhat Bullish' : 0, 'Bullish' : 0}])
+    else:
+        df = pd.DataFrame([sentiment])
     fig = px.bar(df,orientation='h', height=125, width=600, color_discrete_sequence = ['maroon', 'lightcoral', 'mediumseagreen', 'forestgreen'])
     fig.update_layout(legend_title=None, yaxis = dict(visible=False), xaxis_title = None, 
                       margin=dict(l=0,t=0,b=10), paper_bgcolor="#F7F7F7", plot_bgcolor="#F7F7F7")
@@ -209,13 +214,14 @@ def getMonteCarlo(tickerData, PerYearGrowth):
     return {'fig': fig, 'mean': mean}
 
 def create_comp_tickers(tickerSymbols):
-    compTickers = []
-    for ticker in tickerSymbols:
-        temp = ld.createTicker(ticker)
-        if temp == -1: 
+    results = []
+    f_comp = {executor.submit(create_ticker, ticker) for ticker in tickerSymbols}
+    for f in as_completed(f_comp):
+        f_result = f.result()
+        if f_result == -1: 
             return -1
-        compTickers.append(temp)
-    return compTickers
+        results.append(f_result)
+    return results
 
 def create_dashboard_data(df):
     '''tickerSymbol = 'NVDA'
