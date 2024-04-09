@@ -157,12 +157,12 @@ def getSentimentAnalysis(ticker: Ticker):
     Returns:
         string: Bullish, Neutral, Bearish.
     """
-    df = pd.DataFrame([{'Bearish' : 3, 'Somewhat Bearish': 7,'Somewhat Bullish' : 25, 'Bullish' : 20}])
-    '''sentiment = ticker.sentimentAnalysis()
+    #df = pd.DataFrame([{'Bearish' : 3, 'Somewhat Bearish': 7,'Somewhat Bullish' : 25, 'Bullish' : 20}])
+    sentiment = ticker.sentimentAnalysis()
     if sentiment == -1:
         df = pd.DataFrame([{'Bearish' : 0, 'Somewhat Bearish': 0,'Somewhat Bullish' : 0, 'Bullish' : 0}])
     else:
-        df = pd.DataFrame([sentiment])'''
+        df = pd.DataFrame([sentiment])
     fig = px.bar(df,orientation='h', height=125, width=600, color_discrete_sequence = ['maroon', 'lightcoral', 'mediumseagreen', 'forestgreen'])
     fig.update_layout(legend_title=None, yaxis = dict(visible=False), xaxis_title = None, 
                       margin=dict(l=0,t=0,b=10), paper_bgcolor="#F7F7F7", plot_bgcolor="#F7F7F7")
