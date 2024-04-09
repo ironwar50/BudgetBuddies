@@ -15,7 +15,7 @@ def home_layout(error=False):
     return html.Div(children=[alerts,pl.create_homepage()])
 
 
-def get_upload_layout(error=False):
+def get_upload_layout(error=0):
     """
     Check for errors. Create alert add to upload_layout. 
     Retrieve upload page. 
@@ -23,8 +23,20 @@ def get_upload_layout(error=False):
     Return upload layout    
     """
     alerts = html.Div()
-    if error:
-        alerts = html.Div(dbc.Alert("Invalid Ticker", color="warning"),
+    if error == -1:
+        alerts = html.Div(dbc.Alert("Missing Value", color="warning"),
+                          style={'text-align': 'center'})
+    elif error == -2:
+        alerts = html.Div(dbc.Alert("Duplicate in Tickers to Compare", color="warning"),
+                          style={'text-align': 'center'})
+    elif error == -3:
+        alerts = html.Div(dbc.Alert("Duplicate with Target Ticker", color="warning"),
+                          style={'text-align': 'center'})
+    elif error == -4:
+        alerts = html.Div(dbc.Alert("Invalid Target Ticker", color="warning"),
+                          style={'text-align': 'center'})
+    elif error == -5:
+        alerts = html.Div(dbc.Alert("Invalid Ticker in Tickers to Compare", color="warning"),
                           style={'text-align': 'center'})
     return html.Div(children=[alerts,pl.upload_data_layout()])
 

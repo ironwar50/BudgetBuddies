@@ -157,12 +157,12 @@ def getSentimentAnalysis(ticker: Ticker):
     Returns:
         string: Bullish, Neutral, Bearish.
     """
-    #df = pd.DataFrame([{'Bearish' : 3, 'Somewhat Bearish': 7,'Somewhat Bullish' : 25, 'Bullish' : 20}])
-    sentiment = ticker.sentimentAnalysis()
+    df = pd.DataFrame([{'Bearish' : 3, 'Somewhat Bearish': 7,'Somewhat Bullish' : 25, 'Bullish' : 20}])
+    '''sentiment = ticker.sentimentAnalysis()
     if sentiment == -1:
         df = pd.DataFrame([{'Bearish' : 0, 'Somewhat Bearish': 0,'Somewhat Bullish' : 0, 'Bullish' : 0}])
     else:
-        df = pd.DataFrame([sentiment])
+        df = pd.DataFrame([sentiment])'''
     fig = px.bar(df,orientation='h', height=125, width=600, color_discrete_sequence = ['maroon', 'lightcoral', 'mediumseagreen', 'forestgreen'])
     fig.update_layout(legend_title=None, yaxis = dict(visible=False), xaxis_title = None, 
                       margin=dict(l=0,t=0,b=10), paper_bgcolor="#F7F7F7", plot_bgcolor="#F7F7F7")
@@ -231,22 +231,31 @@ def create_dashboard_data(df):
     tickerSymbol = str(df['Ticker'].iloc[0])
     perYearGrowth = df['PerYearGrowth'].iloc[0]
     compareTickers = str(df['CompareTickers'].iloc[0])
-    if tickerSymbol == '' or np.isnan(perYearGrowth)  or compareTickers == 'nan': return{'error': True}
+    if tickerSymbol == '' or np.isnan(perYearGrowth)  or compareTickers == 'nan': return{'error': -1}
 
+    compareTickers = compareTickers.split(',')
+    print(compareTickers)
+    if any(compareTickers.count(x) > 1 for x in compareTickers):
+        return{'error' : -2}
+    
+    for tick in compareTickers:
+        if tick == tickerSymbol:
+            return{'error' : -3}
+        
     start_total_time = time.time()
    
-    f_compareTickersList = executor.submit(create_comp_tickers,compareTickers.split(','))
+    f_compareTickersList = executor.submit(create_comp_tickers,compareTickers)
     f_Ticker = executor.submit(create_ticker, tickerSymbol)
     compareTickersList = f_compareTickersList.result()
     ticker = f_Ticker.result()
    
     #check if there's been an error with finding ticker
-    if ticker == -1: return{'error': True}
-    if compareTickersList == -1: return{'error': True}
+    if ticker == -1: return{'error': -4}
+    if compareTickersList == -1: return{'error': -5}
     start, end = get_start_end_dates()
     tickerData = ticker.getData()  
     toCompData = get_comparison_data(compareTickersList)
-    if toCompData == -1: return{'error': True}
+    if toCompData == -1: return{'error': -5}
     df = get_dataframe(tickerData, start, end)
     fig = create_candlestick_figure(df)
     FullName, LastClose, TrailingPE, ForwardPE, avgAnalystTarget = get_ticker_info(tickerData)
