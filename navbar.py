@@ -7,10 +7,19 @@ import dash_bootstrap_components as dbc
 
 csv_file = 'user_input.csv'
 
-def home_layout(error=False):
+def database_layout():
+    db_layout = pl.database_table_layout()
+    if(db_layout == -1):
+        return home_layout(-2)
+    return db_layout
+
+def home_layout(error=0):
     alerts = html.Div()
-    if error:
+    if error == -1:
         alerts = html.Div(dbc.Alert("Enter Data First", color="warning"),
+                          style={'text-align': 'center'})
+    elif error == -2:
+        alerts = html.Div(dbc.Alert("Database Empty", color="warning"),
                           style={'text-align': 'center'})
     return html.Div(children=[alerts,pl.create_homepage()])
 
@@ -38,6 +47,9 @@ def get_upload_layout(error=0):
     elif error == -5:
         alerts = html.Div(dbc.Alert("Invalid Ticker in Tickers to Compare", color="warning"),
                           style={'text-align': 'center'})
+    elif error == -6:
+        alerts = html.Div(dbc.Alert("Enter Data First", color="warning"),
+                          style={'text-align': 'center'})
     return html.Div(children=[alerts,pl.upload_data_layout()])
 
 
@@ -52,7 +64,7 @@ def get_dashboard_layout():
     try:
         df = db.create_dashboard_data(pd.read_csv(csv_file))
     except FileNotFoundError:
-        return home_layout(True)
+        return get_upload_layout(-6)
     if df['error']:
         return get_upload_layout(df['error'])
     return pl.create_dashboard(df)
@@ -96,7 +108,7 @@ def display_page(pathname):
     elif pathname == "/dashboard_layout":
         return get_dashboard_layout()
     elif pathname == "/database_layout":
-        return pl.database_table_layout()
+        return database_layout()
     else:
         return html.Div(children=[
             html.H1("404: Not found", className="text-danger"),
