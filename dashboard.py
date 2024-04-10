@@ -7,6 +7,7 @@ import numpy as np
 import MonteCarlo as mc
 import plotly.express as px
 import localDatabase as ld
+import remoteDatabase as rd
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor 
 from concurrent.futures import as_completed
@@ -15,7 +16,7 @@ import time
 executor = ThreadPoolExecutor(max_workers=5)
 
 def create_ticker(tickerSymbol):
-    return ld.createTicker(tickerSymbol)
+    return rd.createTicker(tickerSymbol)
 
 def get_start_end_dates():
     """Get the start and end dates for a date range.
@@ -234,7 +235,6 @@ def create_dashboard_data(df):
     if tickerSymbol == '' or np.isnan(perYearGrowth)  or compareTickers == 'nan': return{'error': -1}
 
     compareTickers = compareTickers.split(',')
-    print(compareTickers)
     if any(compareTickers.count(x) > 1 for x in compareTickers):
         return{'error' : -2}
     
@@ -298,6 +298,6 @@ def create_dashboard_data(df):
         'monteCarloFig': monteCarlo['fig'],
         'monteCarloMean': monteCarlo['mean'],
         'eps' : tickerData['eps'],
-        'error' : False
+        'error' : 0
     }
 

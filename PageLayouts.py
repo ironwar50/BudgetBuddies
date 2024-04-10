@@ -1,10 +1,11 @@
 import os
-
+import sqlite3 as sql
 import dash
 from dash import dcc, html, Input, Output, State, callback
 import pandas as pd
 import MySQLdb
-
+import remoteDatabase as rd
+import localDatabase as ld
 
 image_path1 = 'assets/monte_carlo.png'
 image_path2 = 'assets/sentiment_analysis.png'
@@ -195,20 +196,17 @@ def database_table_layout():
             "ca": "/etc/ssl/certs/ca-certificates.crt"
         }
     )
-
+    
     # Create cursor
     cursor = connection.cursor()
 
+    rd.create_ticker_data_table(connection)
     # Execute query to select all rows from TickerData table
     cursor.execute("SELECT * FROM TickerData")
 
     # Fetch all rows
     rows = cursor.fetchall()
 
-    # Close cursor and connection
-    cursor.close()
-    connection.close()
-    
     # Create table rows for each row in the TickerData table
     table_rows = [
         html.Tr([
