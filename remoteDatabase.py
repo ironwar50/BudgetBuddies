@@ -15,7 +15,7 @@ def connect_to_database():
             autocommit=True,
             ssl_mode="VERIFY_IDENTITY",
             ssl={
-                "ca": "/etc/ssl/certs/ca-certificates.crt"
+                "ca": "C:\\Users\\17278\\Documents\\MyCourses\\CEN4090L\\cacert-2024-03-11.pem"
             }
         )
     return connection
