@@ -5,7 +5,7 @@ import pandas as pd
 
 import dash_bootstrap_components as dbc
 
-csv_file = 'user_input.csv'
+csv_file = 'assets/user_input.csv'
 
 def database_layout():
     db_layout = pl.database_table_layout()

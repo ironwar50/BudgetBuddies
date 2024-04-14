@@ -216,7 +216,7 @@ def upload_data_layout():
             ]),
             html.Div(className='menu-item', children=[
                 html.Label(className='menu-title', 
-                children="Enter Additional Stock Ticker Symbols to Compare Against (Seperate By Comma):"),
+                children="Enter Additional Stock Ticker Symbols to Compare Against (Separated By Comma):"),
                 dcc.Input(id="compare-tickers-input", 
                           type="text", placeholder="MSFT,AAPL,NVDA" ,
                           className='space-between'),
@@ -241,9 +241,7 @@ def database_table_layout():
         db=os.getenv("DATABASE"),
         autocommit=True,
         ssl_mode="VERIFY_IDENTITY",
-        ssl={
-            "ca": "C:\\Users\\17278\\Documents\\MyCourses\\CEN4090L\\cacert-2024-03-11.pem"
-        }
+        ssl={"ca": "C:\\Users\\17278\\Documents\\MyCourses\\CEN4090L\\cacert-2024-03-11.pem"}
     )
     
     # Create cursor
@@ -306,7 +304,7 @@ def handle_analyze_button(n_clicks, ticker_input, per_year_growth_input, compare
     })
 
     # Save DataFrame to a CSV file
-    csv_filename = 'user_input.csv'
+    csv_filename = 'assets/user_input.csv'
     df.to_csv(csv_filename, index=False)
 
     return dcc.Location('Go to Dashboard', href='/dashboard_layout', refresh=True)
