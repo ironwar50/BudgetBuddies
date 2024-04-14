@@ -14,20 +14,20 @@ image_path2 = 'assets/sentiment_analysis.png'
 def create_homepage():
     return html.Div([
        html.H1("Automatic Valuation Calculation"),
-       html.H3("Speed up the process of financial modeling"),
+       html.H3("Speeds up the process of financial modeling"),
        html.Br(),
        html.H5("""Intrinsic value will be calculated from the 
                input of a ticker with an estimated yearly growth"""),
        html.H5("Enter tickers of competitors for Trade Comps"),
        html.Br(),
        html.Div([
-              html.H5("Easy construction \nof Monte Carlo Model", 
+              html.H5("Easy construction \nof the Monte Carlo Model",
                      style={'margin-right' : '50px', 'display' : 'inline-block'}),
               html.Img(src=image_path1,style={'display' : 'inline-block'})
        ]),
        html.Br(),
        html.Div([
-              html.H5("Sentiment analysis on the current news", 
+              html.H5("Sentiment analysis from the current news",
                       style={'margin-right' : '50px', 'display' : 'inline-block'}),
               html.Img(src=image_path2,style={'display' : 'inline-block'})
        ]),
@@ -304,7 +304,7 @@ def handle_analyze_button(n_clicks, ticker_input, per_year_growth_input, compare
     })
 
     # Save DataFrame to a CSV file
-    csv_filename = 'assets/user_input.csv'
+    csv_filename = 'user_input.csv'
     df.to_csv(csv_filename, index=False)
 
     return dcc.Location('Go to Dashboard', href='/dashboard_layout', refresh=True)

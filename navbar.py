@@ -5,7 +5,7 @@ import pandas as pd
 
 import dash_bootstrap_components as dbc
 
-csv_file = 'assets/user_input.csv'
+csv_file = 'user_input.csv'
 
 def database_layout():
     db_layout = pl.database_table_layout()
@@ -78,7 +78,7 @@ def get_navbar():
     return dbc.NavbarSimple(
         children=[
             dbc.NavItem(dbc.NavLink("Home", href="/")),
-            dbc.NavItem(dbc.NavLink("Data upload", href="/upload_layout")),
+            dbc.NavItem(dbc.NavLink("Data Upload", href="/upload_layout")),
             dbc.NavItem(dbc.NavLink("Dashboard", href="/dashboard_layout")),
             dbc.NavItem(dbc.NavLink("Database", href="/database_layout")),
         ],
