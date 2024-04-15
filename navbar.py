@@ -78,7 +78,7 @@ def get_navbar():
     return dbc.NavbarSimple(
         children=[
             dbc.NavItem(dbc.NavLink("Home", href="/")),
-            dbc.NavItem(dbc.NavLink("Data upload", href="/upload_layout")),
+            dbc.NavItem(dbc.NavLink("Data Upload", href="/upload_layout")),
             dbc.NavItem(dbc.NavLink("Dashboard", href="/dashboard_layout")),
             dbc.NavItem(dbc.NavLink("Database", href="/database_layout")),
         ],

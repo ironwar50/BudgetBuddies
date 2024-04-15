@@ -13,9 +13,7 @@ def connect_to_database():
         db=os.getenv("DATABASE"),
         autocommit=True,
         ssl_mode="VERIFY_IDENTITY",
-        ssl={
-            "ca": "C:\\Users\\17278\\Documents\\MyCourses\\CEN4090L\\cacert-2024-03-11.pem"
-        }
+        ssl={"ca": "C:\\Users\\17278\\Documents\\MyCourses\\CEN4090L\\cacert-2024-03-11.pem"}
     )
     return connection
 

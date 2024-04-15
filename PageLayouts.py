@@ -14,20 +14,20 @@ image_path2 = 'assets/sentiment_analysis.png'
 def create_homepage():
     return html.Div([
        html.H1("Automatic Valuation Calculation"),
-       html.H3("Speed up the process of financial modeling"),
+       html.H3("Speeds up the process of financial modeling"),
        html.Br(),
        html.H5("""Intrinsic value will be calculated from the 
                input of a ticker with an estimated yearly growth"""),
        html.H5("Enter tickers of competitors for Trade Comps"),
        html.Br(),
        html.Div([
-              html.H5("Easy construction \nof Monte Carlo Model", 
+              html.H5("Easy construction \nof the Monte Carlo Model",
                      style={'margin-right' : '50px', 'display' : 'inline-block'}),
               html.Img(src=image_path1,style={'display' : 'inline-block'})
        ]),
        html.Br(),
        html.Div([
-              html.H5("Sentiment analysis on the current news", 
+              html.H5("Sentiment analysis from the current news",
                       style={'margin-right' : '50px', 'display' : 'inline-block'}),
               html.Img(src=image_path2,style={'display' : 'inline-block'})
        ]),
@@ -227,7 +227,7 @@ def upload_data_layout():
             ]),
             html.Div(className='menu-item', children=[
                 html.Label(className='menu-title', 
-                children="Enter Additional Stock Ticker Symbols to Compare Against (Seperate By Comma):"),
+                children="Enter Additional Stock Ticker Symbols to Compare Against (Separated By Comma):"),
                 dcc.Input(id="compare-tickers-input", 
                           type="text", placeholder="MSFT,AAPL,NVDA" ,
                           className='space-between'),
@@ -252,9 +252,7 @@ def database_table_layout():
         db=os.getenv("DATABASE"),
         autocommit=True,
         ssl_mode="VERIFY_IDENTITY",
-        ssl={
-            "ca": "/etc/ssl/certs/ca-certificates.crt"
-        }
+        ssl={"ca": "C:\\Users\\17278\\Documents\\MyCourses\\CEN4090L\\cacert-2024-03-11.pem"}
     )
     
     # Create cursor
