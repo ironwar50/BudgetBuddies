@@ -169,10 +169,21 @@ def create_dashboard(dashboard_data):
                                 figure=dashboard_data['monteCarloFig'],
                                 style={'width': '100%'}
                             ),
-                            html.P(
-                                "Mean: {:0.2f}".format(dashboard_data['monteCarloMean']),
-                                style={'text-align': 'center'}
-                            )
+                            html.Div([
+                                html.P(
+                                    "Lower Quantile: {:0.2f}".format(dashboard_data['monteCarloLower']),
+                                    style={'display': 'inline-block'}
+                                ),
+                                html.P(
+                                    "Mean: {:0.2f}".format(dashboard_data['monteCarloMean']),
+                                    style={'display': 'inline-block', 'margin-left': '3%'}
+                                ),
+                                html.P(
+                                    "Upper Quantile: {:0.2f}".format(dashboard_data['monteCarloUpper']),
+                                    style={'display': 'inline-block', 'margin-left': '3%'}
+                                ),
+                            ], style={'text-align': 'center'}),
+                            
                         ],
                         width=12, lg=6
                     )
@@ -242,7 +253,7 @@ def database_table_layout():
         autocommit=True,
         ssl_mode="VERIFY_IDENTITY",
         ssl={
-            "ca": "C:\\Users\\17278\\Documents\\MyCourses\\CEN4090L\\cacert-2024-03-11.pem"
+            "ca": "/etc/ssl/certs/ca-certificates.crt"
         }
     )
     

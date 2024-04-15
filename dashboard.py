@@ -212,7 +212,9 @@ def getMonteCarlo(tickerData, PerYearGrowth):
     fig.update_layout(legend_title=None, plot_bgcolor="#F7F7F7", paper_bgcolor="#343A40",
                       margin=dict(t=75,b=20,l=20),font=dict(color="#F7F7F7"))
     mean = distribution.mean()
-    return {'fig': fig, 'mean': mean}
+    lowerQuant = distribution.quantile(.25)
+    upperQuant = distribution.quantile(.75)
+    return {'fig': fig, 'mean': mean, 'lowerQuant' : lowerQuant, 'upperQuant' : upperQuant}
 
 def create_comp_tickers(tickerSymbols):
     results = []
@@ -297,6 +299,8 @@ def create_dashboard_data(df):
         'movingAVG': movingAVG,
         'monteCarloFig': monteCarlo['fig'],
         'monteCarloMean': monteCarlo['mean'],
+        'monteCarloLower': monteCarlo['lowerQuant'],
+        'monteCarloUpper': monteCarlo['upperQuant'],
         'eps' : tickerData['eps'],
         'error' : 0
     }
